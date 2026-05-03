@@ -584,6 +584,91 @@
                     </div>
                 @endif
 
+                {{-- ==================== CONSUMABLES, MATERIALS & EXPENDABLES ==================== --}}
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="text-lg font-semibold text-gray-800">Consumables, Materials & Expendables</h2>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="text-left p-3 font-semibold text-gray-700 w-2/5">Name</th>
+                                    <th class="text-left p-3 font-semibold text-gray-700 w-2/5">Identification / References
+                                    </th>
+                                    <th class="text-center p-3 font-semibold text-gray-700 w-1/5">Quantity</th>
+                                    @can('update', $mwsPart)
+                                        <th class="text-center p-3 font-semibold text-gray-700 w-24">Aksi</th>
+                                    @endcan
+                                </tr>
+                            </thead>
+                            <tbody id="consumables-tbody">
+                                @forelse($mwsPart->consumables as $consumable)
+                                    <tr id="consumable-row-{{ $consumable->id }}" class="border-t border-gray-100">
+                                        <td class="p-3">
+                                            <span id="cons-name-{{ $consumable->id }}">{{ $consumable->name }}</span>
+                                        </td>
+                                        <td class="p-3">
+                                            <span
+                                                id="cons-ident-{{ $consumable->id }}">{{ $consumable->identification ?? '-' }}</span>
+                                        </td>
+                                        <td class="p-3 text-center">
+                                            <span id="cons-qty-{{ $consumable->id }}">{{ $consumable->quantity }}</span>
+                                        </td>
+                                        @can('update', $mwsPart)
+                                            <td class="p-3 text-center">
+                                                <button onclick="editConsumable({{ $consumable->id }})"
+                                                    class="p-1 text-blue-600 hover:text-blue-800" title="Edit">
+                                                    <i class="fas fa-edit text-xs"></i>
+                                                </button>
+                                                <button
+                                                    onclick="deleteConsumable('{{ $mwsPart->id }}', {{ $consumable->id }})"
+                                                    class="p-1 text-red-600 hover:text-red-800" title="Hapus">
+                                                    <i class="fas fa-trash-alt text-xs"></i>
+                                                </button>
+                                            </td>
+                                        @endcan
+                                    </tr>
+                                @empty
+                                    <tr id="consumables-empty-row">
+                                        <td colspan="4" class="p-4 text-center text-gray-500 italic text-sm">
+                                            Belum ada consumable.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                            {{-- Form tambah baru (hanya admin) --}}
+                            @can('update', $mwsPart)
+                                <tfoot>
+                                    <tr class="bg-blue-50 border-t-2 border-blue-200">
+                                        <td class="p-2">
+                                            <input type="text" id="new-cons-name"
+                                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                placeholder="Nama consumable...">
+                                        </td>
+                                        <td class="p-2">
+                                            <input type="text" id="new-cons-ident"
+                                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                placeholder="Identification / References...">
+                                        </td>
+                                        <td class="p-2">
+                                            <input type="text" id="new-cons-qty"
+                                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                                                placeholder="AR">
+                                        </td>
+                                        <td class="p-2 text-center">
+                                            <button onclick="addConsumable('{{ $mwsPart->id }}')"
+                                                class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded">
+                                                <i class="fas fa-plus mr-1"></i> Tambah
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            @endcan
+                        </table>
+                    </div>
+                </div>
+
                 {{-- TABLE --}}
                 <div class="overflow-x-auto">
                     <table class="worksheet-table">
@@ -669,7 +754,66 @@
                                         <div id="step-desc-{{ $step->no }}" class="font-semibold text-gray-800">
                                             {{ $step->description }}
                                         </div>
+                                        {{-- CAUTION --}}
+                                        @if ($step->caution)
+                                            <div
+                                                class="mt-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded text-xs">
+                                                <span class="font-bold text-yellow-800 uppercase">Caution: </span>
+                                                <span class="text-yellow-700">{{ $step->caution }}</span>
+                                            </div>
+                                        @endif
 
+                                        {{-- NOTE --}}
+                                        @if ($step->note)
+                                            <div
+                                                class="mt-1 p-2 bg-blue-50 border-l-4 border-blue-300 rounded text-xs italic">
+                                                <span class="font-bold text-blue-700">Note: </span>
+                                                <span class="text-blue-600">{{ $step->note }}</span>
+                                            </div>
+                                        @endif
+
+                                        {{-- Edit Caution (admin only) --}}
+                                        @can('update', $mwsPart)
+                                            <div class="mt-2 pt-2 border-t border-gray-100">
+                                                <div class="flex space-x-1 mb-1">
+                                                    <button onclick="toggleCautionEdit({{ $step->no }}, true)"
+                                                        class="text-xs text-yellow-600 hover:text-yellow-800 font-medium">
+                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                        {{ $step->caution ? 'Edit Caution' : '+ Caution' }}
+                                                    </button>
+                                                    <span class="text-gray-300">|</span>
+                                                    <button onclick="toggleNoteEdit({{ $step->no }}, true)"
+                                                        class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                                                        <i class="fas fa-sticky-note mr-1"></i>
+                                                        {{ $step->note ? 'Edit Note' : '+ Note' }}
+                                                    </button>
+                                                </div>
+                                                {{-- Caution edit area --}}
+                                                <div id="caution-edit-{{ $step->no }}" class="hidden mt-1">
+                                                    <textarea id="caution-input-{{ $step->no }}" class="w-full border rounded px-2 py-1 text-xs" rows="2"
+                                                        placeholder="Tulis teks CAUTION...">{{ $step->caution }}</textarea>
+                                                    <div class="flex space-x-1 mt-1">
+                                                        <button
+                                                            onclick="saveCaution('{{ $mwsPart->id }}', {{ $step->no }})"
+                                                            class="px-2 py-1 bg-yellow-500 text-white text-xs rounded">Simpan</button>
+                                                        <button onclick="toggleCautionEdit({{ $step->no }}, false)"
+                                                            class="px-2 py-1 bg-gray-400 text-white text-xs rounded">Batal</button>
+                                                    </div>
+                                                </div>
+                                                {{-- Note edit area --}}
+                                                <div id="note-edit-{{ $step->no }}" class="hidden mt-1">
+                                                    <textarea id="note-input-{{ $step->no }}" class="w-full border rounded px-2 py-1 text-xs" rows="2"
+                                                        placeholder="Tulis teks Note...">{{ $step->note }}</textarea>
+                                                    <div class="flex space-x-1 mt-1">
+                                                        <button
+                                                            onclick="saveNote('{{ $mwsPart->id }}', {{ $step->no }})"
+                                                            class="px-2 py-1 bg-blue-500 text-white text-xs rounded">Simpan</button>
+                                                        <button onclick="toggleNoteEdit({{ $step->no }}, false)"
+                                                            class="px-2 py-1 bg-gray-400 text-white text-xs rounded">Batal</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endcan
                                         {{-- Details List --}}
                                         <div id="details-list-{{ $step->no }}" class="mt-2 pl-4">
                                             <ul class="list-disc list-inside text-gray-600 space-y-1 text-xs">
@@ -689,6 +833,39 @@
                                                 @endforeach
                                             </ul>
                                         </div>
+                                        {{-- SUB-STEPS --}}
+                                        <div id="substeps-list-{{ $step->no }}" class="mt-2 pl-4">
+                                            @foreach ($step->subSteps as $sub)
+                                                <div id="substep-item-{{ $sub->id }}"
+                                                    class="flex items-start space-x-1 text-xs text-gray-700 py-0.5">
+                                                    <span
+                                                        class="font-semibold text-gray-500 mr-1 flex-shrink-0">{{ $sub->label }}.</span>
+                                                    <span id="substep-text-{{ $sub->id }}"
+                                                        class="flex-1">{{ $sub->description }}</span>
+                                                    @can('update', $mwsPart)
+                                                        <button
+                                                            onclick="editSubStep('{{ $mwsPart->id }}', {{ $step->no }}, {{ $sub->id }})"
+                                                            class="text-blue-500 hover:text-blue-700 flex-shrink-0">(Edit)</button>
+                                                        <button
+                                                            onclick="deleteSubStep('{{ $mwsPart->id }}', {{ $step->no }}, {{ $sub->id }})"
+                                                            class="text-red-500 hover:text-red-700 flex-shrink-0">(Hapus)</button>
+                                                    @endcan
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        {{-- Tambah Sub-Step (admin only) --}}
+                                        @can('update', $mwsPart)
+                                            <div class="mt-2 flex items-center space-x-1">
+                                                <input type="text" id="new-substep-input-{{ $step->no }}"
+                                                    class="flex-1 border border-gray-200 rounded px-2 py-1 text-xs"
+                                                    placeholder="Tambah sub-step (a, b, c)...">
+                                                <button onclick="addSubStep('{{ $mwsPart->id }}', {{ $step->no }})"
+                                                    class="px-2 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-xs rounded whitespace-nowrap">
+                                                    + Sub-step
+                                                </button>
+                                            </div>
+                                        @endcan
 
                                         {{-- Add Detail --}}
                                         @can('update', $mwsPart)
@@ -742,7 +919,8 @@
                                         @can('update', $mwsPart)
                                             <div id="plan-hours-view-{{ $step->no }}"
                                                 class="flex items-center justify-between space-x-1">
-                                                <span id="plan-hours-text-{{ $step->no }}" class="text-sm text-gray-700">
+                                                <span id="plan-hours-text-{{ $step->no }}"
+                                                    class="text-sm text-gray-700">
                                                     {{ $step->plan_hours ?? 'N/A' }}
                                                 </span>
                                                 <button onclick="togglePlanEdit({{ $step->no }}, 'hours', true)"
@@ -810,7 +988,8 @@
                                                             {{-- Ini perlu di-pass dari controller --}}
                                                             @foreach ($availableMechanics ?? [] as $mechanic)
                                                                 <option value="{{ $mechanic->nik }}">
-                                                                    {{ $mechanic->name }} ({{ $mechanic->nik }})</option>
+                                                                    {{ $mechanic->name }} ({{ $mechanic->nik }})
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                         <button
@@ -827,7 +1006,8 @@
 
                                             {{-- Mekanik: Sign On Sendiri --}}
                                             @if ($isMechanic && !$userInStep && !$techApproved)
-                                                <button onclick="addMeToStep('{{ $mwsPart->id }}', {{ $step->no }})"
+                                                <button
+                                                    onclick="addMeToStep('{{ $mwsPart->id }}', {{ $step->no }})"
                                                     class="w-full mt-1 px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-bold transition-colors {{ $isMwsLocked || $planIncomplete || count($mechanicNiks) >= ($step->plan_man ?? 999) ? 'opacity-50 cursor-not-allowed' : '' }}"
                                                     @if ($isMwsLocked) disabled title="MWS terkunci."
                                                     @elseif($planIncomplete) disabled title="PLAN MAN dan PLAN HOURS harus diisi dulu."

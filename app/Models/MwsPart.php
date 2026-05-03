@@ -67,4 +67,9 @@ class MwsPart extends Model
     {
         return $this->belongsTo(Customer::class, 'customer_id');
     }
+
+    public function consumables()
+    {
+        return $this->hasMany(MwsConsumable::class, 'mws_part_id')->orderBy('order');
+    }
 }

@@ -23,7 +23,9 @@ class MwsStep extends Model
         'completed_by',
         'completed_date',
         'timer_start_time',
-        'attachments'
+        'attachments',
+        'caution',
+        'note'
     ];
 
     protected $casts = [
@@ -62,5 +64,10 @@ class MwsStep extends Model
     public function part()
     {
         return $this->belongsTo(MwsPart::class, 'mws_part_id');
+    }
+
+    public function subSteps()
+    {
+        return $this->hasMany(MwsSubStep::class, 'mws_step_id')->orderBy('order');
     }
 }

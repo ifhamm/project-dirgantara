@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\MwsPart;
 use App\Models\MwsStep;
 use App\Models\Customer;
+use App\Models\MwsConsumable;
+use App\Models\MwsSubstep;
 use App\Services\MwsTemplateServices;
 use App\Services\IwoNumberService;
 use Illuminate\Http\Request;
@@ -156,7 +158,11 @@ class MwsPartController extends Controller
 
     public function show($id)
     {
-        $mwsPart = MwsPart::with(['customer', 'steps'])->findOrFail($id);
+        $mwsPart = MwsPart::with([
+            'customer',
+            'steps.subSteps',  
+            'consumables',   
+        ])->findOrFail($id);
 
         $availableMechanics = \App\Models\User::where('role', 'mechanic')
             ->select('nik', 'name')
@@ -194,7 +200,7 @@ class MwsPartController extends Controller
 
     public function print(MwsPart $mwsPart)
     {
-        $mwsPart->load(['customer', 'steps']);
+        $mwsPart->load(['customer', 'steps.SubSteps', 'consumables']);
 
         return view('mws.print', compact('mwsPart'));
     }
@@ -259,5 +265,134 @@ class MwsPartController extends Controller
         $mwsPart->update($data);
 
         return response()->json(['message' => 'Tanggal berhasil diperbarui!']);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // CONSUMABLES
+    // ════════════════════════════════════════════════════════════
+
+    public function storeConsumable(Request $request, $mwsPartId)
+    {
+        $request->validate([
+            'name'           => 'required|string|max:255',
+            'identification' => 'nullable|string|max:255',
+            'quantity'       => 'nullable|string|max:50',
+        ]);
+
+        $lastOrder = MwsConsumable::where('mws_part_id', $mwsPartId)->max('order') ?? 0;
+
+        $consumable = MwsConsumable::create([
+            'mws_part_id'    => $mwsPartId,
+            'name'           => $request->name,
+            'identification' => $request->identification,
+            'quantity'       => $request->quantity ?? 'AR',
+            'order'          => $lastOrder + 1,
+        ]);
+
+        return response()->json(['success' => true, 'consumable' => $consumable]);
+    }
+    public function updateConsumable(Request $request, $mwsPartId, $consumableId)
+    {
+        $consumable = MwsConsumable::where('mws_part_id', $mwsPartId)
+            ->findOrFail($consumableId);
+
+        $consumable->update($request->only(['name', 'identification', 'quantity']));
+
+        return response()->json(['success' => true, 'consumable' => $consumable]);
+    }
+
+    public function destroyConsumable($mwsPartId, $consumableId)
+    {
+        MwsConsumable::where('mws_part_id', $mwsPartId)
+            ->findOrFail($consumableId)
+            ->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // CAUTION & NOTE per STEP
+    // ════════════════════════════════════════════════════════════
+    public function updateStepCaution(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $step->update([
+            'caution' => $request->caution,
+            'note'    => $request->note,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+        // ════════════════════════════════════════════════════════════
+    // SUB-STEPS
+    // ════════════════════════════════════════════════════════════
+
+    public function storeSubStep(Request $request, $mwsPartId, $stepNo)
+    {
+        $request->validate([
+            'description' => 'required|string',
+        ]);
+
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $lastOrder = MwsSubStep::where('mws_step_id', $step->id)->max('order') ?? 0;
+        $label     = $this->generateSubStepLabel($step->id);
+
+        $subStep = MwsSubStep::create([
+            'mws_step_id' => $step->id,
+            'label'       => $label,
+            'description' => $request->description,
+            'order'       => $lastOrder + 1,
+        ]);
+
+        return response()->json(['success' => true, 'subStep' => $subStep]);
+    }
+
+    public function updateSubStep(Request $request, $mwsPartId, $stepNo, $subStepId)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $subStep = MwsSubStep::where('mws_step_id', $step->id)
+            ->findOrFail($subStepId);
+
+        $subStep->update(['description' => $request->description]);
+
+        return response()->json(['success' => true, 'subStep' => $subStep]);
+    }
+
+    public function destroySubStep($mwsPartId, $stepNo, $subStepId)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        MwsSubStep::where('mws_step_id', $step->id)
+            ->findOrFail($subStepId)
+            ->delete();
+
+        // Re-label ulang: a, b, c, ...
+        MwsSubStep::where('mws_step_id', $step->id)
+            ->orderBy('order')
+            ->get()
+            ->each(function ($sub, $index) {
+                $sub->update(['label' => chr(97 + $index)]);
+            });
+
+        return response()->json(['success' => true]);
+    }
+
+    // ── Helper ───────────────────────────────────────────────
+    private function generateSubStepLabel(int $stepId): string
+    {
+        $count = MwsSubStep::where('mws_step_id', $stepId)->count();
+        return chr(97 + $count); // 0→a, 1→b, dst.
     }
 }
