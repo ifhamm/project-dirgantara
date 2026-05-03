@@ -9,39 +9,67 @@ class MwsPart extends Model
 {
     use HasFactory;
 
-    protected $table = 'mws_parts';
-
     protected $fillable = [
-        'part_id', 'customer_id', 'URGENT REQUEST BY', 'START DATE', 'REF LOGISTIC PPC', 'CUSTOMER', 'WBS NO',
-        'TITTLE', 'PART NUMBER', 'SERIAL NUMBER', 'jobType', 'MDR DOC DEFECT', 'REF', 'AC TYPE', 'IWO NO',
-        'SHOP AREA', 'IWO DATE', 'WORKSHEET NO', 'REMARK MWS', 'TEST RESULT', 'SCHEDULE DELIVERY ON TIME',
-        'ECD FINISH WORKDAYS', 'SELISIH WORK DAYS', 'PROSENTASE SCHEDULE', 'WORKSHEET DATE', 'APPROVED DATE',
-        'FORM OUT NO', 'TANDA TERIMA FO NO', 'TANDA TERIMA FO DATE', 'STRIPPING REPORT DATE',
-        'STRIPPING ORDER BY SAP DATE', 'SELISIH ORDER WORK DAYS', 'TIME STRIPPING WORK DAYS', 'MAX STRIPPING DATE',
-        'TASE STRIPPING', 'PROSENTASE BDP', 'QTY BDP', 'STATUS S US', 'REVISION', 'FINISH DATE', 'FINISH DATE 2',
-        'MEN POWERS', 'MAN HOURS', 'DOCUMENT PENYERTA', 'SHIP TRANSFER TT DATE', 'SHIP TRANSFER TT NO', 'ISR NO',
-        'SELISIH SHIPPING WORK DAYS', 'TASE', 'REMARK', 'PREPARED BY', 'PREPARED DATE', 'APPROVED BY',
-        'VERIFIED BY', 'VERIFIED DATE', 'STRIPPING NOTIFIED', 'CAPABILITY', 'ATTACHMENT', 'STATUS', 'IS URGENT',
-        'URGENT REQUEST', 'CURRENT STEP', 'SELISIH STRIPPING (WORK DAYS)', 'ZONE', 'testcase', 'indock_task_id'
+        'part_id',
+        'iwo_no',
+        'part_number',
+        'serial_number',
+        'title',
+        'ref',
+        'job_type',
+        'ac_type',
+        'wbs_no',
+        'worksheet_no',
+        'shop_area',
+        'revision',
+        'zone',
+        'status',
+        'start_date',
+        'finish_date',
+        'is_urgent',
+        'urgent_request',
+        'current_step',
+        'men_powers',
+        'total_duration',
+        'stripping_date',
+        'stripping_deadline',
+        'stripping_percentage',
+        'preparedBy',
+        'preparedAt',
+        'approvedBy',
+        'approvedAt',
+        'verifiedBy',
+        'verifiedAt',
+        'status_s_us',
+        'customer_id',
+        'indock_task_id'
     ];
 
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class);
-    }
-
-    public function indockTask()
-    {
-        return $this->belongsTo(IndockTask::class);
-    }
+    protected $casts = [
+        'start_date' => 'date',
+        'finish_date' => 'date',
+        'is_urgent' => 'boolean',
+        'urgent_request' => 'boolean',
+        'stripping_date' => 'date',
+        'stripping_deadline' => 'date',
+        'stripping_percentage' => 'integer',
+        'preparedAt' => 'datetime',
+        'approvedAt' => 'datetime',
+        'verifiedAt' => 'datetime',
+    ];
 
     public function steps()
     {
-        return $this->hasMany(MwsStep::class);
+        return $this->hasMany(MwsStep::class, 'mws_part_id');
     }
 
-    public function strippings()
+    public function customer()
     {
-        return $this->hasMany(Stripping::class);
+        return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function consumables()
+    {
+        return $this->hasMany(MwsConsumable::class, 'mws_part_id')->orderBy('order');
     }
 }
