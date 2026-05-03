@@ -135,14 +135,15 @@ class MwsPartController extends Controller
         return back()->with('success', 'Steps berhasil dibuat');
     }
 
-    public function updateStep(Request $request, $id)
+    public function updateStep(Request $request, $stepNo)
     {
-        $step = MwsStep::findOrFail($id);
+        $step = MwsStep::where('mws_part_id', $request->mws_part_id)
+            ->where('no', $stepNo)
+            ->firstOrFail();
 
         $field = $request->field;
         $value = $request->value;
 
-        // whitelist
         if (!in_array($field, ['description', 'plan_man', 'plan_hours'])) {
             return response()->json(['error' => 'Invalid field'], 400);
         }
@@ -160,8 +161,8 @@ class MwsPartController extends Controller
     {
         $mwsPart = MwsPart::with([
             'customer',
-            'steps.subSteps',  
-            'consumables',   
+            'steps.subSteps',
+            'consumables',
         ])->findOrFail($id);
 
         $availableMechanics = \App\Models\User::where('role', 'mechanic')
@@ -268,25 +269,398 @@ class MwsPartController extends Controller
     }
 
     // ════════════════════════════════════════════════════════════
+    // STEPS MANAGEMENT (untuk tombol +, insert, delete, bulk delete)
+    // ════════════════════════════════════════════════════════════
+
+    public function storeStep(Request $request, $mwsPartId)
+    {
+        $lastStep = MwsStep::where('mws_part_id', $mwsPartId)->max('no') ?? 0;
+
+        $step = MwsStep::create([
+            'mws_part_id' => $mwsPartId,
+            'no' => $lastStep + 1,
+            'description' => $request->description,
+            'status' => 'pending',
+            'details' => [],
+            'man' => [],
+        ]);
+
+        return response()->json(['success' => true, 'step' => $step]);
+    }
+
+    public function insertStepAfter(Request $request, $mwsPartId, $stepNo)
+    {
+        MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', '>', $stepNo)
+            ->increment('no');
+
+        $newStep = MwsStep::create([
+            'mws_part_id' => $mwsPartId,
+            'no' => $stepNo + 1,
+            'description' => $request->description,
+            'status' => 'pending',
+            'details' => [],
+            'man' => [],
+        ]);
+
+        return response()->json(['success' => true, 'step' => $newStep]);
+    }
+
+    public function destroyStep($mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $step->delete();
+
+        // Reorder
+        $steps = MwsStep::where('mws_part_id', $mwsPartId)->orderBy('no')->get();
+        foreach ($steps as $index => $s) {
+            $s->update(['no' => $index + 1]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function bulkDeleteSteps(Request $request, $mwsPartId)
+    {
+        $stepNos = $request->step_nos ?? [];
+
+        MwsStep::where('mws_part_id', $mwsPartId)
+            ->whereIn('no', $stepNos)
+            ->delete();
+
+        // Reorder
+        $steps = MwsStep::where('mws_part_id', $mwsPartId)->orderBy('no')->get();
+        foreach ($steps as $index => $s) {
+            $s->update(['no' => $index + 1]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // DETAILS (catatan per step)
+    // ════════════════════════════════════════════════════════════
+
+    public function storeDetail(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $details = $step->details ?? [];
+        $details[] = $request->detail;
+
+        $step->update(['details' => $details]);
+
+        return response()->json(['success' => true, 'details' => $details]);
+    }
+
+    public function updateDetail(Request $request, $mwsPartId, $stepNo, $detailIndex)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $details = $step->details ?? [];
+        if (isset($details[$detailIndex])) {
+            $details[$detailIndex] = $request->detail;
+        }
+
+        $step->update(['details' => $details]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function destroyDetail($mwsPartId, $stepNo, $detailIndex)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $details = $step->details ?? [];
+        if (isset($details[$detailIndex])) {
+            unset($details[$detailIndex]);
+            $details = array_values($details);
+        }
+
+        $step->update(['details' => $details]);
+
+        return response()->json(['success' => true]);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // MECHANIC (sign on, assign, remove)
+    // ════════════════════════════════════════════════════════════
+
+    public function signOn(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $user = auth()->user();
+        $man = $step->man ?? [];
+
+        if (!in_array($user->nik, $man)) {
+            $man[] = $user->nik;
+            $step->update(['man' => $man]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function assignMechanic(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $man = $step->man ?? [];
+        if (!in_array($request->nik, $man)) {
+            $man[] = $request->nik;
+            $step->update(['man' => $man]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function removeMechanic(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $man = array_values(array_diff($step->man ?? [], [$request->nik]));
+        $step->update(['man' => $man]);
+
+        return response()->json(['success' => true]);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // TIMER (start, stop)
+    // ════════════════════════════════════════════════════════════
+
+    public function startTimer(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $step->update([
+            'timer_start_time' => now(),
+            'status' => 'in_progress'
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function stopTimer(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        if (!$step->timer_start_time) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Timer belum dimulai'
+            ], 400);
+        }
+
+        $start = \Carbon\Carbon::parse($step->timer_start_time);
+        $elapsedMinutes = $start->diffInMinutes(now());
+
+        // Parse current hours "HH:MM"
+        $currentHours = $step->hours ?? '00:00';
+        list($currentH, $currentM) = explode(':', $currentHours);
+        $currentTotalMinutes = ((int) $currentH * 60) + (int) $currentM;
+
+        // Add elapsed
+        $totalMinutes = $currentTotalMinutes + $elapsedMinutes;
+        $newH = floor($totalMinutes / 60);
+        $newM = $totalMinutes % 60;
+        $newHours = sprintf('%02d:%02d', $newH, $newM);
+
+        $step->update([
+            'hours' => $newHours,
+            'timer_start_time' => null
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'hours' => $newHours
+        ]);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // APPROVAL & FINISH (tech approve, insp finish, final inspection)
+    // ════════════════════════════════════════════════════════════
+
+    public function approveStep(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $step->update(['tech' => 'Approved']);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function unapproveStep(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $step->update(['tech' => null]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function finishStep(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $step->update([
+            'status' => 'completed',
+            'insp' => 'Approved'
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function unfinishStep(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $step->update([
+            'status' => 'in_progress',
+            'insp' => null
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function finishFinalInspection(Request $request, $mwsPartId, $stepNo)
+    {
+        $step = MwsStep::where('mws_part_id', $mwsPartId)
+            ->where('no', $stepNo)
+            ->firstOrFail();
+
+        $step->update([
+            'status' => 'completed',
+            'insp' => 'Approved',
+            'status_s_us' => $request->status_s_us
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // ATTACHMENTS (placeholder - sesuaikan dengan storage Anda)
+    // ════════════════════════════════════════════════════════════
+
+    public function storeAttachment(Request $request, $mwsPartId)
+    {
+        // TODO: Implement file upload
+        return response()->json(['success' => true]);
+    }
+
+    public function destroyAttachment($mwsPartId, $publicId)
+    {
+        // TODO: Implement file delete
+        return response()->json(['success' => true]);
+    }
+
+    public function storeStepAttachment(Request $request, $mwsPartId, $stepNo)
+    {
+        // TODO: Implement file upload
+        return response()->json(['success' => true]);
+    }
+
+    public function destroyStepAttachment($mwsPartId, $stepNo, $publicId)
+    {
+        // TODO: Implement file delete
+        return response()->json(['success' => true]);
+    }
+
+    // ════════════════════════════════════════════════════════════
+    // DUPLICATE MWS
+    // ════════════════════════════════════════════════════════════
+
+    public function duplicate($mwsPartId)
+    {
+        $original = MwsPart::with('steps.subSteps')->findOrFail($mwsPartId);
+
+        DB::beginTransaction();
+        try {
+            $new = $original->replicate();
+            $new->part_id = 'MWS-' . str_pad(MwsPart::max('id') + 1, 3, '0', STR_PAD_LEFT);
+            $new->status = 'pending';
+            $new->preparedBy = null;
+            $new->approvedBy = null;
+            $new->verifiedBy = null;
+            $new->start_date = now();
+            $new->finish_date = null;
+            $new->save();
+
+            foreach ($original->steps as $step) {
+                $newStep = $step->replicate();
+                $newStep->mws_part_id = $new->id;
+                $newStep->status = 'pending';
+                $newStep->tech = null;
+                $newStep->insp = null;
+                $newStep->hours = 0;
+                $newStep->timer_start_time = null;
+                $newStep->save();
+
+                foreach ($step->subSteps as $sub) {
+                    $newSub = $sub->replicate();
+                    $newSub->mws_step_id = $newStep->id;
+                    $newSub->save();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'redirect' => route('mws.show', $new->id)
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════
     // CONSUMABLES
     // ════════════════════════════════════════════════════════════
 
     public function storeConsumable(Request $request, $mwsPartId)
     {
         $request->validate([
-            'name'           => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'identification' => 'nullable|string|max:255',
-            'quantity'       => 'nullable|string|max:50',
+            'quantity' => 'nullable|string|max:50',
         ]);
 
         $lastOrder = MwsConsumable::where('mws_part_id', $mwsPartId)->max('order') ?? 0;
 
         $consumable = MwsConsumable::create([
-            'mws_part_id'    => $mwsPartId,
-            'name'           => $request->name,
+            'mws_part_id' => $mwsPartId,
+            'name' => $request->name,
             'identification' => $request->identification,
-            'quantity'       => $request->quantity ?? 'AR',
-            'order'          => $lastOrder + 1,
+            'quantity' => $request->quantity ?? 'AR',
+            'order' => $lastOrder + 1,
         ]);
 
         return response()->json(['success' => true, 'consumable' => $consumable]);
@@ -321,13 +695,13 @@ class MwsPartController extends Controller
 
         $step->update([
             'caution' => $request->caution,
-            'note'    => $request->note,
+            'note' => $request->note,
         ]);
 
         return response()->json(['success' => true]);
     }
 
-        // ════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════
     // SUB-STEPS
     // ════════════════════════════════════════════════════════════
 
@@ -342,13 +716,13 @@ class MwsPartController extends Controller
             ->firstOrFail();
 
         $lastOrder = MwsSubStep::where('mws_step_id', $step->id)->max('order') ?? 0;
-        $label     = $this->generateSubStepLabel($step->id);
+        $label = $this->generateSubStepLabel($step->id);
 
         $subStep = MwsSubStep::create([
             'mws_step_id' => $step->id,
-            'label'       => $label,
+            'label' => $label,
             'description' => $request->description,
-            'order'       => $lastOrder + 1,
+            'order' => $lastOrder + 1,
         ]);
 
         return response()->json(['success' => true, 'subStep' => $subStep]);

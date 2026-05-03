@@ -1,3 +1,8 @@
+@php
+    if (!isset($isMwsLocked)) {
+        $isMwsLocked = !($mwsPart->preparedBy && $mwsPart->approvedBy);
+    }
+@endphp
 @extends('layouts.app')
 
 @section('title', 'MWS ' . $mwsPart->part_number . ' - Sistem Aircraft Maintenance')
@@ -239,7 +244,16 @@
 @endpush
 
 @section('content')
-    <div class="min-h-screen bg-gray-50">
+    @php
+        $mwsConfig = json_encode([
+            'partId' => $mwsPart->id,
+            'csrfToken' => csrf_token(),
+            'userRole' => auth()->user()->getRoleNames()->first() ?? '',
+            'userNik' => auth()->user()->nik ?? '',
+            'isLocked' => $isMwsLocked,
+        ]);
+    @endphp
+    <div id="mws-app" data-mws='{{ $mwsConfig }}' class="min-h-screen bg-gray-50">
 
         {{-- ==================== STRIPPING NOTIFICATION ==================== --}}
         <div id="stripping-notification" style="display:none;">
@@ -567,7 +581,6 @@
 
                 {{-- MWS Locked Banner --}}
                 @php
-                    $isMwsLocked = !($mwsPart->preparedBy && $mwsPart->approvedBy);
                     $isMechanic = auth()->user()->hasRole('mechanic');
                 @endphp
                 @if ($isMwsLocked && $isMechanic)
@@ -900,7 +913,8 @@
                                                     value="{{ $step->plan_man }}"
                                                     class="w-full border rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-400"
                                                     placeholder="Contoh: 2">
-                                                <button onclick="savePlan('{{ $mwsPart->id }}', {{ $step->no }}, 'man')"
+                                                <button
+                                                    onclick="savePlan('{{ $mwsPart->id }}', {{ $step->no }}, 'man')"
                                                     class="mt-1 w-full px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded">
                                                     <i class="fas fa-save mr-1"></i> Simpan
                                                 </button>
@@ -1022,12 +1036,12 @@
                                     <td class="col-act-hrs align-top">
                                         <div class="flex flex-col items-center space-y-1">
                                             <input type="hidden" id="hours-{{ $step->no }}"
-                                                value="{{ $step->hours ?? '00:00' }}">
+                                                value="{{ $step->hours }}">
                                             <span id="hours-display-{{ $step->no }}"
                                                 class="font-mono text-lg font-semibold text-gray-700"
                                                 @if ($timerRunning) data-start-time="{{ $step->timer_start_time }}"
-                                          data-initial-hours="{{ $step->hours ?? '00:00' }}" @endif>
-                                                {{ $step->hours ?? '00:00' }}
+                                            data-initial-hours="{{ $step->hours }}" @endif>
+                                                {{ $step->hours }}
                                             </span>
 
                                             @if ($isMechanic && $userInStep && !$techApproved)
@@ -1426,165 +1440,7 @@
             </div>
         </div>{{-- end main container --}}
     </div>{{-- end min-h-screen --}}
-
-    {{-- ==================== PASS DATA TO JS ==================== --}}
-    <script>
-        const currentUserRole = @json(auth()->user()->getRoleNames()->first() ?? '');
-        const currentUserNik = @json(auth()->user()->nik ?? '');
-        const partId = @json($mwsPart->id);
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const isMwsLocked = @json($isMwsLocked);
-    </script>
-    <script src="{{ asset('js/mws_detail_logic.js') }}" defer></script>
-
-    {{-- ==================== INLINE SCRIPT ==================== --}}
-    @push('scripts')
-        <script>
-            /* ─── UI Helpers ─── */
-            function showToast(message, type = 'success') {
-                const el = document.getElementById('toast-notification');
-                const msg = document.getElementById('toast-message');
-                const icon = document.getElementById('toast-icon');
-                el.className = type;
-                el.style.display = 'block';
-                msg.textContent = message;
-                icon.className = type === 'success' ?
-                    'fas fa-check-circle text-xl mt-0.5' :
-                    type === 'error' ?
-                    'fas fa-times-circle text-xl mt-0.5' :
-                    'fas fa-info-circle text-xl mt-0.5';
-                setTimeout(() => dismissToast(), 4000);
-            }
-
-            function dismissToast() {
-                document.getElementById('toast-notification').style.display = 'none';
-            }
-
-            /* ─── Section Toggle ─── */
-            function toggleSection(id) {
-                const el = document.getElementById(id);
-                el.classList.toggle('hidden');
-            }
-
-            /* ─── Edit MWS Info ─── */
-            function toggleEditMwsInfo(show) {
-                document.getElementById('mws-info-view').classList.toggle('hidden', show);
-                document.getElementById('mws-info-edit').classList.toggle('hidden', !show);
-            }
-            async function saveMwsInfo(e) {
-                e.preventDefault();
-                const form = e.target;
-                const data = Object.fromEntries(new FormData(form));
-                try {
-                    const res = await fetch(`/mws/${partId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        body: JSON.stringify(data)
-                    });
-                    if (res.ok) {
-                        showToast('MWS Info berhasil disimpan!');
-                        location.reload();
-                    } else showToast('Gagal menyimpan.', 'error');
-                } catch {
-                    showToast('Terjadi kesalahan.', 'error');
-                }
-            }
-
-            /* ─── Plan Edit Toggle ─── */
-            function togglePlanEdit(stepNo, field, show) {
-                document.getElementById(`plan-${field}-view-${stepNo}`).style.display = show ? 'none' : 'flex';
-                document.getElementById(`plan-${field}-edit-${stepNo}`).style.display = show ? 'block' : 'none';
-            }
-
-            /* ─── Select All ─── */
-            document.addEventListener('DOMContentLoaded', () => {
-                const selectAll = document.getElementById('select-all-steps');
-                if (selectAll) {
-                    selectAll.addEventListener('change', () => {
-                        document.querySelectorAll('.step-checkbox').forEach(cb => cb.checked = selectAll
-                            .checked);
-                        updateSmartDeleteBtn();
-                    });
-                    document.querySelectorAll('.step-checkbox').forEach(cb => {
-                        cb.addEventListener('change', updateSmartDeleteBtn);
-                    });
-                }
-
-                // Auto-start live timers
-                document.querySelectorAll('[data-start-time]').forEach(el => {
-                    startLiveTimer(el);
-                });
-            });
-
-            function updateSmartDeleteBtn() {
-                const checked = document.querySelectorAll('.step-checkbox:checked').length;
-                const btn = document.getElementById('smart-delete-btn');
-                if (btn) btn.classList.toggle('hidden', checked === 0);
-            }
-
-            /* ─── Live Timer ─── */
-            function startLiveTimer(el) {
-                const startTime = new Date(el.dataset.startTime);
-                const initialParts = (el.dataset.initialHours || '00:00').split(':').map(Number);
-                const initialSecs = initialParts[0] * 3600 + (initialParts[1] || 0) * 60;
-
-                setInterval(() => {
-                    const elapsed = Math.floor((Date.now() - startTime) / 1000) + initialSecs;
-                    const h = String(Math.floor(elapsed / 3600)).padStart(2, '0');
-                    const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, '0');
-                    el.textContent = `${h}:${m}`;
-                }, 1000);
-            }
-
-            /* ─── File name display ─── */
-            function updateFileName(input, stepNo) {
-                const display = document.getElementById(`file-name-display-${stepNo}`);
-                if (display) {
-                    display.textContent = input.files.length > 0 ? [...input.files].map(f => f.name).join(', ') :
-                        'Pilih file...';
-                }
-            }
-
-            function updateMwsFileName(input) {
-                const display = document.getElementById('mws-file-name-display');
-                if (display) {
-                    display.textContent = input.files.length > 0 ? [...input.files].map(f => f.name).join(', ') :
-                        'Pilih file lampiran...';
-                }
-            }
-
-            /* ─── Final Inspection ─── */
-            function enableFinalApprove(stepNo) {
-                const sel = document.getElementById(`status-s-us-select-${stepNo}`);
-                const btn = document.getElementById(`final-approve-btn-${stepNo}`);
-                if (sel.value) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
-            }
-
-            /* ─── Stripping Notification ─── */
-            function dismissStrippingNotification() {
-                document.getElementById('stripping-notification').style.display = 'none';
-            }
-
-            /* ─── Duplicate Confirm ─── */
-            function confirmDuplicateMws(id) {
-                if (confirm('Yakin ingin menduplikasi MWS ini?')) {
-                    fetch(`/mws/${id}/duplicate`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken
-                        }
-                    }).then(r => r.json()).then(d => {
-                        if (d.redirect) window.location.href = d.redirect;
-                        else showToast(d.message || 'Berhasil diduplikasi!');
-                    }).catch(() => showToast('Gagal menduplikasi.', 'error'));
-                }
-            }
-        </script>
-    @endpush
 @endsection
+@push('scripts')
+    <script src="{{ asset('js/info_mws_logic.js') }}"></script>
+@endpush

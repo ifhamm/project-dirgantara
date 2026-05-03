@@ -584,19 +584,19 @@ function startLiveTimer(el) {
     const startTime = new Date(el.dataset.startTime);
     const initialStr = el.dataset.initialHours || "00:00";
     const parts = initialStr.split(":").map(Number);
-    const initialSecs = (parts[0] * 3600) + (parts[1] * 60);
+    const initialSecs = parts[0] * 3600 + (parts[1] || 0) * 60;
 
     const tick = () => {
-        const elapsed = Math.floor((Date.now() - startTime) / 1000) + initialSecs;
+        const elapsed =
+            Math.floor((Date.now() - startTime) / 1000) + initialSecs;
         const h = String(Math.floor(elapsed / 3600)).padStart(2, "0");
         const m = String(Math.floor((elapsed % 3600) / 60)).padStart(2, "0");
         el.textContent = `${h}:${m}`;
     };
 
-    tick();
+    tick(); // langsung tampilkan tanpa tunggu 1 detik
     setInterval(tick, 1000);
 }
-
 
 // ═══════════════════════════════════════════════════════════════
 // APPROVE / UNAPPROVE (TECH)
