@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('staff_areas', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained('users');
+            $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
             $table->string('nik', 50);
             $table->string('name', 100);
-            $table->json('assigned_customers')->nullable();
-            $table->string('assigned_shop_area', 100)->nullable();
+            $table->json('assignedCustomers')->nullable();
+            $table->string('assignedShopArea', 100)->nullable();
             $table->timestamps();
         });
     }

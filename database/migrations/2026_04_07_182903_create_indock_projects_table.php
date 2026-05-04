@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('indock_projects', function (Blueprint $table) {
             $table->id();
-            $table->string('project_code', 50)->nullable();
+            $table->string('projectCode', 50)->nullable();
             $table->string('aircraft', 100)->nullable();
-            $table->string('check_type', 50)->nullable();
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
+            $table->string('checkType', 50)->nullable();
+            $table->date('startDate')->nullable();
+            $table->date('endDate')->nullable();
             $table->string('status', 50)->nullable();
             $table->timestamps();
         });

@@ -12,8 +12,8 @@ class Stripping extends Model
     protected $table = 'stripping';
 
     protected $fillable = [
-        'BDP NAME', 'BDP NUMBER', 'BDP_NUMBER_Eqv', 'QTY', 'UNIT', 'OP NUMBER', 'OP DATE', 'DEFECT',
-        'MT NUMBER', 'MT QTY', 'MT DATE', 'mws_part_id', 'REMARK'
+        'bdpName', 'bdpNumber', 'bdpNumberEqv', 'qty', 'unit', 'opNumber', 'opDate', 'defect',
+        'mtNumber', 'mtQty', 'mtDate', 'mws_part_id', 'remark'
     ];
 
     public function mwsPart()

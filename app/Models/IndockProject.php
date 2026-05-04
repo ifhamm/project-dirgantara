@@ -10,11 +10,11 @@ class IndockProject extends Model
     use HasFactory;
 
     protected $fillable = [
-        'project_code',
+        'projectCode',
         'aircraft',
-        'check_type',
-        'start_date',
-        'end_date',
+        'checkType',
+        'startDate',
+        'endDate',
         'status',
     ];
 

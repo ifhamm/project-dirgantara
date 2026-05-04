@@ -115,15 +115,15 @@ class MwsPartController extends Controller
 
         $templates = MwsTemplateServices::getTemplates();
 
-        $jobType = $mws->job_type;
+        $job_type = $mws->job_type;
 
-        if (!isset($templates[$jobType])) {
+        if (!isset($templates[$job_type])) {
             return back()->with('error', 'Template tidak ditemukan');
         }
 
         MwsStep::where('mws_part_id', $mws->id)->delete();
 
-        foreach ($templates[$jobType] as $index => $desc) {
+        foreach ($templates[$job_type] as $index => $desc) {
             MwsStep::create([
                 'mws_part_id' => $mws->id,
                 'no' => $index + 1,

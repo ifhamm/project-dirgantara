@@ -13,12 +13,12 @@ class StaffArea extends Model
         'user_id',
         'nik',
         'name',
-        'assigned_customers',
-        'assigned_shop_area',
+        'assignedCustomers',
+        'assignedShopArea',
     ];
 
     protected $casts = [
-        'assigned_customers' => 'array',
+        'assignedCustomers' => 'array',
     ];
 
     public function user()

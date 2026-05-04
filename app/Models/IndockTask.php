@@ -15,8 +15,8 @@ class IndockTask extends Model
         'code',
         'level',
         'parent_id',
-        'planned_start',
-        'planned_end',
+        'plannedStart',
+        'plannedEnd',
         'progress',
         'status',
     ];

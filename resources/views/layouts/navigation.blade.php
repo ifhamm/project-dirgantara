@@ -16,6 +16,18 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('mws.create')" :active="request()->routeIs('mws.create')">
+                        {{ __('Create MWS') }}
+                    </x-nav-link>
+                </div>
+
+                {{-- <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('mws.show')" :active="request()->routeIs('mws.show')">
+                        {{ __('MWS') }}
+                    </x-nav-link>
+                </div> --}}
             </div>
 
             <!-- Settings Dropdown -->

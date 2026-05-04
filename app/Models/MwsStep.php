@@ -21,8 +21,7 @@ class MwsStep extends Model
         'tech',
         'insp',
         'status',
-        'status_s_us',
-        'completed_by',
+        'completedBy',
         'completed_date',
         'timer_start_time',
         'attachments',
@@ -44,18 +43,18 @@ public function getHoursAttribute($value)
         if (is_null($value) || $value === '') {
             return '00:00';
         }
-        
+
         if (is_string($value) && preg_match('/^\d{2}:\d{2}$/', $value)) {
             return $value;
         }
-        
+
         if (is_numeric($value)) {
             $totalMinutes = (int) ($value * 60);
             $h = floor($totalMinutes / 60);
             $m = $totalMinutes % 60;
             return sprintf('%02d:%02d', $h, $m);
         }
-        
+
         return '00:00';
     }
 
@@ -78,7 +77,7 @@ public function getHoursAttribute($value)
     {
         $man = $this->man ?? [];
         $mechanics = [];
-        
+
         foreach ($man as $nik) {
             $user = \App\Models\User::where('nik', $nik)->first();
             if ($user) {
@@ -93,7 +92,7 @@ public function getHoursAttribute($value)
                 ];
             }
         }
-        
+
         return collect($mechanics);
     }
 

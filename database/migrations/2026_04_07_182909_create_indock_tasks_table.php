@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('indock_tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->nullable()->constrained('indock_projects');
+            $table->foreignId('project_id')->nullable()->constrained('indock_projects')->onDelete('cascade');
             $table->string('name', 255)->nullable();
             $table->string('code', 50)->nullable();
             $table->integer('level')->nullable();
-            $table->foreignId('parent_id')->nullable()->constrained('indock_tasks');
-            $table->date('planned_start')->nullable();
-            $table->date('planned_end')->nullable();
+            $table->foreignId('parent_id')->nullable()->constrained('indock_tasks')->onDelete('cascade');
+            $table->date('plannedstart')->nullable();
+            $table->date('plannedEnd')->nullable();
             $table->float('progress')->nullable();
             $table->string('status', 50)->nullable();
             $table->timestamps();
