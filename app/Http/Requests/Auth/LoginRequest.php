@@ -28,8 +28,10 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
-            'password' => ['required', 'string'],
+            'login_type' => ['required', 'string', 'in:superadmin,user'],
+            'email' => ['required_if:login_type,superadmin', 'nullable', 'string', 'email'],
+            'password' => ['required_if:login_type,superadmin', 'nullable', 'string'],
+            'nik' => ['required_if:login_type,user', 'nullable', 'string', 'min:8', 'max:16'],
         ];
     }
 
@@ -42,11 +44,23 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $loginType = $this->input('login_type');
+        $credentials = [];
+        $errorField = 'email';
+
+        if ($loginType === 'superadmin') {
+            $credentials = $this->only('email', 'password');
+            $errorField = 'email';
+        } else {
+            $credentials = ['nik' => $this->nik, 'password' => 'password_default_atau_nik'];
+            $errorField = 'nik';
+        }
+
+        if (! Auth::attempt($credentials, $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                $errorField => trans('auth.failed'),
             ]);
         }
 
@@ -81,6 +95,10 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        $identifier = $this->input('login_type') === 'superadmin'
+            ? $this->string('email')
+            : $this->string('nik');
+
+        return Str::transliterate(Str::lower($identifier) . '|' . $this->ip());
     }
 }
