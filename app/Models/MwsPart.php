@@ -11,11 +11,10 @@ class MwsPart extends Model
 
     protected $fillable = [
         'part_id',
-        'customer_id',
         'UrgentRequestBy',
         'start_date',
         'refLogisticPPC',
-        'customer',
+        'customer_name',
         'wbsNO',
         'title',
         'part_number',
@@ -107,10 +106,6 @@ class MwsPart extends Model
         return $this->hasMany(MwsStep::class, 'mws_part_id');
     }
 
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class, 'customer_id');
-    }
 
     public function consumables()
     {

@@ -2,7 +2,7 @@
 <h2>{{ $mwsPart->title }} - {{ $mwsPart->part_number }}</h2>
 
 <div class="info-grid">
-    <div><strong>Customer:</strong> {{ $mwsPart->customer->company_name ?? '-' }}</div>
+    <div><strong>Customer:</strong> {{ $mwsPart->customer_name ?? '-' }}</div>
     <div><strong>Serial Number:</strong> {{ $mwsPart->serial_number }}</div>
 </div>
 

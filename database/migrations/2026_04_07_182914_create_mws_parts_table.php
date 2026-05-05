@@ -15,11 +15,11 @@ return new class extends Migration
         Schema::create('mws_parts', function (Blueprint $table) {
             $table->id();
             $table->string('part_id', 50)->unique();
-            $table->foreignId('customer_id')->nullable()->constrained('customers')->onDelete('cascade');
+            // store customer name directly (no foreign key to customers table)
+            $table->string('customer_name', 100)->nullable();
             $table->string('UrgentRequestBy', 50)->nullable()->index();
             $table->date('start_date')->nullable();
             $table->string('refLogisticPPC', 100)->nullable();
-            $table->string('customer', 100)->nullable();
             $table->string('wbsNO', 100)->nullable();
             $table->string('title', 255);
             $table->string('part_number', 100);

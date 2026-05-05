@@ -83,7 +83,7 @@
                         <i class="fas fa-arrow-left"></i>
                     </a>
                     <div>
-                        <h4 class="mb-0">Customer: {{ $mwsPart->customer->company_name ?? '-' }}</h4>
+                        <h4 class="mb-0">Customer: {{ $mwsPart->customer_name ?? '-' }}</h4>
                         <small class="text-muted">Serial Number: {{ $mwsPart->serial_number }}</small>
                     </div>
                     <div class="ms-auto">
@@ -131,13 +131,13 @@
                                 ['label' => 'Part Number', 'value' => $mwsPart->part_number],
                                 ['label' => 'Ref', 'value' => $mwsPart->ref ?? 'N/A'],
                                 ['label' => 'Component Order', 'value' => $mwsPart->job_type ?? 'N/A'],
-                                ['label' => 'Customer', 'value' => $mwsPart->customer->company_name ?? '-'],
-                                ['label' => 'A/C Type', 'value' => $mwsPart->ac_type ?? 'N/A'],
+                                ['label' => 'Customer', 'value' => $mwsPart->customer_name ?? '-'],
+                                ['label' => 'A/C Type', 'value' => $mwsPart->acType ?? 'N/A'],
                                 ['label' => 'Serial Number', 'value' => $mwsPart->serial_number],
-                                ['label' => 'WBS No.', 'value' => $mwsPart->wbs_no ?? 'N/A'],
-                                ['label' => 'Worksheet No.', 'value' => $mwsPart->worksheet_no ?? 'N/A'],
+                                ['label' => 'WBS No.', 'value' => $mwsPart->wbsNO ?? 'N/A'],
+                                ['label' => 'Worksheet No.', 'value' => $mwsPart->wroksheetNo ?? 'N/A'],
                                 ['label' => 'IWO No.', 'value' => $mwsPart->iwo_no],
-                                ['label' => 'Shop Area', 'value' => $mwsPart->shop_area ?? 'N/A'],
+                                ['label' => 'Shop Area', 'value' => $mwsPart->shopArea ?? 'N/A'],
                                 ['label' => 'Revision', 'value' => $mwsPart->revision ?? 'N/A'],
                                 ['label' => 'Zone', 'value' => $mwsPart->zone ?? 'N/A'],
                                 [
@@ -169,12 +169,12 @@
                                     ['name' => 'part_number', 'label' => 'Part Number', 'value' => $mwsPart->part_number],
                                     ['name' => 'ref', 'label' => 'Ref', 'value' => $mwsPart->ref],
                                     ['name' => 'job_type', 'label' => 'Component Order', 'value' => $mwsPart->job_type],
-                                    ['name' => 'ac_type', 'label' => 'A/C Type', 'value' => $mwsPart->ac_type],
+                                    ['name' => 'acType', 'label' => 'A/C Type', 'value' => $mwsPart->acType],
                                     ['name' => 'serial_number', 'label' => 'Serial Number', 'value' => $mwsPart->serial_number],
-                                    ['name' => 'wbs_no', 'label' => 'WBS No.', 'value' => $mwsPart->wbs_no],
-                                    ['name' => 'worksheet_no', 'label' => 'Worksheet No.', 'value' => $mwsPart->worksheet_no],
+                                    ['name' => 'wbsNO', 'label' => 'WBS No.', 'value' => $mwsPart->wbsNO],
+                                    ['name' => 'wroksheetNo', 'label' => 'Worksheet No.', 'value' => $mwsPart->wroksheetNo],
                                     ['name' => 'iwo_no', 'label' => 'IWO No.', 'value' => $mwsPart->iwo_no],
-                                    ['name' => 'shop_area', 'label' => 'Shop Area', 'value' => $mwsPart->shop_area],
+                                    ['name' => 'shopArea', 'label' => 'Shop Area', 'value' => $mwsPart->shopArea],
                                     ['name' => 'revision', 'label' => 'Revision', 'value' => $mwsPart->revision],
                                     ['name' => 'zone', 'label' => 'Zone', 'value' => $mwsPart->zone],
                                     ['name' => 'start_date', 'label' => 'Start Date', 'value' => $mwsPart->start_date, 'type' => 'date'],

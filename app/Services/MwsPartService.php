@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Customer;
 use App\Models\MwsPart;
 use App\Models\MwsStep;
 use App\Models\User;
@@ -27,7 +26,7 @@ class MwsPartService
             }
 
             $partId = 'MWS-' . str_pad($next, 3, '0', STR_PAD_LEFT);
-            $customer = Customer::where('company_name', $data['customer_name'] ?? null)->first();
+            // we store customer name directly; no FK lookup
             $status = ($data['shop_area'] ?? null) === 'FO' ? 'Form Out' : 'pending';
 
             $mws = MwsPart::create([
@@ -37,11 +36,24 @@ class MwsPartService
                 'part_number' => $data['part_number'] ?? null,
                 'serial_number' => $data['serial_number'] ?? null,
                 'job_type' => $data['job_type'],
-                'customer_id' => $customer?->id,
+                'customer_name' => $data['customer_name'] ?? null,
                 'status' => $status,
                 'start_date' => now()->timezone('Asia/Jakarta'),
                 'current_step' => 1,
                 'indock_task_id' => $data['indock_task_id'] ?? null,
+                // Additional fields from form
+                'refLogisticPPC' => $data['ref_logistic_ppc'] ?? null,
+                'wbsNO' => $data['wbs_no'] ?? null,
+                'mdrDocDeffect' => $data['mdr_doc_defect'] ?? null,
+                'capability' => $data['capability'] ?? null,
+                'shopArea' => $data['shop_area'] ?? null,
+                'remarkMWS' => $data['remark_mws'] ?? null,
+                'testResult' => $data['test_result'] ?? null,
+                'ref' => $data['ref'] ?? null,
+                'acType' => $data['ac_type'] ?? null,
+                'wroksheetNo' => $data['worksheet_no'] ?? null,
+                'revision' => $data['revision'] ?? '1',
+                'zone' => $data['zone'] ?? null,
             ]);
 
             $this->syncTemplateSteps($mws);
@@ -96,7 +108,6 @@ class MwsPartService
     public function show(int $id): array
     {
         $mwsPart = MwsPart::with([
-            'customer',
             'steps.subSteps',
             'consumables',
         ])->findOrFail($id);
@@ -120,6 +131,14 @@ class MwsPartService
             'serial_number' => $data['serial_number'] ?? $mws->serial_number,
             'job_type' => $data['job_type'] ?? $mws->job_type,
             'status' => $data['status'] ?? $mws->status,
+            'ref' => $data['ref'] ?? $mws->ref,
+            'acType' => $data['acType'] ?? $mws->acType,
+            'wbsNO' => $data['wbsNO'] ?? $mws->wbsNO,
+            'wroksheetNo' => $data['wroksheetNo'] ?? $mws->wroksheetNo,
+            'shopArea' => $data['shopArea'] ?? $mws->shopArea,
+            'revision' => $data['revision'] ?? $mws->revision,
+            'zone' => $data['zone'] ?? $mws->zone,
+            'start_date' => $data['start_date'] ?? $mws->start_date,
         ]);
 
         return $mws->fresh();
@@ -132,7 +151,7 @@ class MwsPartService
 
     public function print(MwsPart $mwsPart): MwsPart
     {
-        return $mwsPart->load(['customer', 'steps.subSteps', 'consumables']);
+        return $mwsPart->load(['steps.subSteps', 'consumables']);
     }
 
     public function sign(MwsPart $mwsPart, string $type, string $signedBy): void
