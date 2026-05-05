@@ -9,237 +9,27 @@
 
 @push('styles')
     <style>
-        /* ===== LAYOUT & TABLE ===== */
-        .worksheet-table {
-            table-layout: fixed;
-            width: 100%;
-            min-width: 1200px;
-        }
-
-        .worksheet-table th,
-        .worksheet-table td {
-            vertical-align: top;
-            border: 1px solid #e5e7eb;
-            padding: 0.75rem;
-        }
-
-        .col-select {
-            width: 45px;
-        }
-
-        .col-no {
-            width: 50px;
-        }
-
-        .col-desc {
-            width: 28%;
-        }
-
-        .col-plan-man,
-        .col-plan-hrs,
-        .col-act-man,
-        .col-act-hrs {
-            width: 9%;
-            min-width: 110px;
-        }
-
-        .col-tech {
-            width: 10%;
-            min-width: 120px;
-        }
-
-        .col-insp {
-            width: 8%;
-            min-width: 90px;
-        }
-
-        .col-status {
-            width: 7%;
-            min-width: 80px;
-        }
-
-        .col-action {
-            width: 10%;
-            min-width: 120px;
-        }
-
-        .col-attach {
-            width: 12%;
-            min-width: 130px;
-        }
-
-        .tech-cell {
-            max-width: 150px !important;
-            min-width: 120px !important;
-            width: 150px !important;
-        }
-
-        .tech-cell textarea,
-        .tech-cell span {
-            word-wrap: break-word;
-            word-break: break-word;
-            overflow-wrap: break-word;
-            white-space: pre-wrap;
-            hyphens: auto;
-            line-height: 1.3;
-        }
-
-        /* ===== ROW STATUS COLORS ===== */
-        .row-completed {
-            background-color: #eff6ff;
-        }
-
-        .row-in_progress {
-            background-color: #f0fdf4;
-        }
-
-        .row-pending {
-            background-color: #fef2f2;
-        }
-
-        .worksheet-table tbody tr:hover {
-            background-color: #f9fafb !important;
-        }
-
-        /* ===== STRIPPING NOTIFICATION ===== */
-        #stripping-notification {
-            position: fixed;
-            top: 5rem;
-            right: 1rem;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            color: white;
-            z-index: 50;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1);
-            min-width: 300px;
-            max-width: 400px;
-        }
-
-        #stripping-notification.warning {
-            background-color: #f59e0b;
-        }
-
-        #stripping-notification.critical {
-            background-color: #ef4444;
-            animation: pulse 2s infinite;
-        }
-
-        #stripping-notification.safe {
-            background-color: #10b981;
-        }
-
-        .stripping-progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, .3);
-            border-radius: 4px;
-            margin: .5rem 0;
-            overflow: hidden;
-        }
-
-        .stripping-progress-fill {
-            height: 100%;
-            background: white;
-            border-radius: 4px;
-            transition: width .3s ease;
-        }
-
-        /* ===== TOAST / NOTIFICATION ===== */
-        #toast-notification {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            color: white;
-            z-index: 100;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1);
-            min-width: 320px;
-            max-width: 400px;
-            animation: slideIn .3s ease-out;
-            display: none;
-        }
-
-        #toast-notification.success {
-            background-color: #10b981;
-        }
-
-        #toast-notification.error {
-            background-color: #ef4444;
-        }
-
-        #toast-notification.info {
-            background-color: #3b82f6;
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: .7;
-            }
-        }
-
-        /* ===== STRIPPING WARNING ROWS ===== */
-        .stripping-warning {
-            background-color: #fef3cd !important;
-            border-left: 4px solid #f59e0b;
-        }
-
-        .stripping-critical {
-            background-color: #fee2e2 !important;
-            border-left: 4px solid #ef4444;
-            animation: subtle-pulse 3s infinite;
-        }
-
-        @keyframes subtle-pulse {
-
-            0%,
-            100% {
-                background-color: #fee2e2;
-            }
-
-            50% {
-                background-color: #fecaca;
-            }
-        }
-
-        /* ===== PLAN INLINE EDIT ===== */
-        .plan-edit-area {
-            display: none;
-        }
-
-        /* ===== BADGE STATUS ===== */
-        .badge-completed {
-            background: #3b82f6;
-            color: #fff;
-        }
-
-        .badge-in_progress {
-            background: #10b981;
-            color: #fff;
-        }
-
-        .badge-pending {
-            background: #ef4444;
-            color: #fff;
-        }
+        /* Animations */
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .7; } }
+        @keyframes subtle-pulse { 0%, 100% { background-color: #f8d7da; } 50% { background-color: #f5c2c7; } }
+        
+        /* Notifications */
+        #stripping-notification { position: fixed; top: 5rem; right: 1rem; padding: 1rem; border-radius: 0.5rem; color: white; z-index: 50; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1); min-width: 300px; max-width: 400px; }
+        #stripping-notification.warning { background-color: #ffc107; }
+        #stripping-notification.critical { background-color: #dc3545; animation: pulse 2s infinite; }
+        #stripping-notification.safe { background-color: #28a745; }
+        
+        #toast-notification { position: fixed; top: 1rem; right: 1rem; padding: 1rem; border-radius: 0.5rem; color: white; z-index: 1050; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1); min-width: 320px; max-width: 400px; animation: slideIn .3s ease-out; display: none; }
+        #toast-notification.success { background-color: #28a745; }
+        #toast-notification.error { background-color: #dc3545; }
+        #toast-notification.info { background-color: #0dcaf0; }
+        
+        /* Stripping styles */
+        .stripping-progress-bar { width: 100%; height: 8px; background: rgba(255, 255, 255, .3); border-radius: 4px; margin: .5rem 0; overflow: hidden; }
+        .stripping-progress-fill { height: 100%; background: white; border-radius: 4px; transition: width .3s ease; }
+        .stripping-warning { background-color: #fff3cd !important; border-left: 4px solid #ffc107; }
+        .stripping-critical { background-color: #f8d7da !important; border-left: 4px solid #dc3545; animation: subtle-pulse 3s infinite; }
     </style>
 @endpush
 
@@ -253,63 +43,55 @@
             'isLocked' => $isMwsLocked,
         ]);
     @endphp
-    <div id="mws-app" data-mws='{{ $mwsConfig }}' class="min-h-screen bg-gray-50">
+    <div id="mws-app" data-mws='{{ $mwsConfig }}' class="min-vh-100 bg-light">
 
         {{-- ==================== STRIPPING NOTIFICATION ==================== --}}
         <div id="stripping-notification" style="display:none;">
-            <div class="flex items-start space-x-2">
-                <div class="flex-shrink-0"><i id="stripping-icon" class="fas fa-exclamation-triangle text-xl"></i></div>
-                <div class="flex-1">
-                    <h4 class="font-bold text-sm mb-1">Peringatan Stripping</h4>
-                    <p id="stripping-message" class="text-sm mb-2"></p>
+            <div class="d-flex align-items-start gap-2">
+                <div><i id="stripping-icon" class="fas fa-exclamation-triangle"></i></div>
+                <div class="flex-grow-1">
+                    <h4 class="fw-bold mb-1">Peringatan Stripping</h4>
+                    <p id="stripping-message" class="mb-2"></p>
                     <div class="stripping-progress-bar">
                         <div id="stripping-progress-fill" class="stripping-progress-fill" style="width:100%"></div>
                     </div>
-                    <div class="flex justify-between text-xs mt-1">
+                    <div class="d-flex justify-content-between text-muted">
                         <span id="stripping-percentage">100%</span>
                         <span id="stripping-deadline"></span>
                     </div>
                 </div>
-                <button onclick="dismissStrippingNotification()" class="flex-shrink-0 text-white hover:text-gray-200">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button onclick="dismissStrippingNotification()" class="btn-close btn-close-white"></button>
             </div>
         </div>
 
         {{-- ==================== TOAST ==================== --}}
         <div id="toast-notification">
-            <div class="flex items-start justify-between">
-                <div class="flex items-start space-x-2">
-                    <i id="toast-icon" class="fas fa-check-circle text-xl mt-0.5"></i>
-                    <span id="toast-message" class="text-sm font-medium"></span>
+            <div class="d-flex align-items-start justify-content-between">
+                <div class="d-flex align-items-start gap-2">
+                    <i id="toast-icon" class="fas fa-check-circle"></i>
+                    <span id="toast-message" class="small fw-medium"></span>
                 </div>
-                <button onclick="dismissToast()" class="ml-4 text-white opacity-70 hover:opacity-100">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button onclick="dismissToast()" class="btn-close btn-close-white ms-3"></button>
             </div>
         </div>
 
         {{-- ==================== TOP HEADER ==================== --}}
-        <div class="bg-white shadow-sm border-b sticky top-0 z-40">
-            <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center py-4">
-                    <div class="flex items-center">
-                        <a href="{{ route('dashboard') }}" class="mr-4 p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                            <i class="fas fa-arrow-left text-gray-600"></i>
-                        </a>
-                        <div>
-                            <h1 class="text-2xl font-bold text-gray-800">
-                                Customer: <span>{{ $mwsPart->customer->company_name ?? '-' }}</span>
-                            </h1>
-                            <p class="text-gray-600">Serial Number: <span>{{ $mwsPart->serial_number }}</span></p>
-                        </div>
+        <nav class="navbar navbar-light bg-white border-bottom sticky-top">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center w-100">
+                    <a href="{{ route('dashboard') }}" class="btn btn-light btn-sm me-3">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    <div>
+                        <h4 class="mb-0">Customer: {{ $mwsPart->customer->company_name ?? '-' }}</h4>
+                        <small class="text-muted">Serial Number: {{ $mwsPart->serial_number }}</small>
                     </div>
-                    <div class="flex items-center space-x-4">
+                    <div class="ms-auto">
                         @php
                             $statusClass = match ($mwsPart->status) {
-                                'completed' => 'bg-blue-500 text-white',
-                                'in_progress' => 'bg-green-500 text-white',
-                                default => 'bg-red-500 text-white',
+                                'completed' => 'bg-info',
+                                'in_progress' => 'bg-success',
+                                default => 'bg-danger',
                             };
                             $statusLabel = match ($mwsPart->status) {
                                 'completed' => 'Completed',
@@ -317,234 +99,204 @@
                                 default => 'Pending',
                             };
                         @endphp
-                        <span class="px-4 py-2 rounded-full text-sm font-medium {{ $statusClass }}">
-                            {{ $statusLabel }}
-                        </span>
+                        <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
                     </div>
                 </div>
             </div>
-        </div>
+        </nav>
 
-        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <div class="container-fluid py-4">
 
             {{-- ==================== INFORMASI MWS ==================== --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div class="flex justify-between items-center mb-4 pb-4 border-b border-gray-200">
-                    <h2 class="text-lg font-semibold text-gray-800">Informasi MWS</h2>
-                    <div class="flex items-center space-x-3">
+            <div class="card mb-4">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Informasi MWS</h5>
+                    <div class="d-flex gap-2">
                         @can('update', $mwsPart)
-                            <button onclick="toggleEditMwsInfo(true)"
-                                class="flex items-center space-x-1 text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                <i class="fas fa-edit"></i><span>Edit</span>
+                            <button onclick="toggleEditMwsInfo(true)" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit me-1"></i>Edit
                             </button>
-                            <button onclick="confirmDuplicateMws('{{ $mwsPart->id }}')"
-                                class="flex items-center space-x-1 text-purple-600 hover:text-purple-800 text-sm font-medium">
-                                <i class="fas fa-copy"></i><span>Duplicate</span>
+                            <button onclick="confirmDuplicateMws('{{ $mwsPart->id }}')" class="btn btn-sm btn-outline-purple">
+                                <i class="fas fa-copy me-1"></i>Duplicate
                             </button>
                         @endcan
                     </div>
                 </div>
-
-                {{-- VIEW MODE --}}
-                <div id="mws-info-view" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                    @php
-                        $infoFields = [
-                            ['label' => 'Tittle / Part Name', 'value' => $mwsPart->title],
-                            ['label' => 'Part Number', 'value' => $mwsPart->part_number],
-                            ['label' => 'Ref', 'value' => $mwsPart->ref ?? 'N/A'],
-                            ['label' => 'Component Order', 'value' => $mwsPart->job_type ?? 'N/A'],
-                            ['label' => 'Customer', 'value' => $mwsPart->customer->company_name ?? '-'],
-                            ['label' => 'A/C Type', 'value' => $mwsPart->ac_type ?? 'N/A'],
-                            ['label' => 'Serial Number', 'value' => $mwsPart->serial_number],
-                            ['label' => 'WBS No.', 'value' => $mwsPart->wbs_no ?? 'N/A'],
-                            ['label' => 'Worksheet No.', 'value' => $mwsPart->worksheet_no ?? 'N/A'],
-                            ['label' => 'IWO No.', 'value' => $mwsPart->iwo_no],
-                            ['label' => 'Shop Area', 'value' => $mwsPart->shop_area ?? 'N/A'],
-                            ['label' => 'Revision', 'value' => $mwsPart->revision ?? 'N/A'],
-                            ['label' => 'Zone', 'value' => $mwsPart->zone ?? 'N/A'],
-                            [
-                                'label' => 'Start Date',
-                                'value' => $mwsPart->start_date
-                                    ? \Carbon\Carbon::parse($mwsPart->start_date)->format('d/m/Y')
-                                    : 'N/A',
-                            ],
-                            ['label' => 'Status', 'value' => ucfirst($mwsPart->status)],
-                        ];
-                    @endphp
-                    @foreach ($infoFields as $field)
-                        <div class="border border-gray-100 bg-gray-50 p-3 rounded-lg">
-                            <label
-                                class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">{{ $field['label'] }}</label>
-                            <p class="text-gray-800 font-medium">{{ $field['value'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
-
-                {{-- EDIT MODE --}}
-                <form id="mws-info-edit" class="hidden" onsubmit="saveMwsInfo(event)">
-                    @csrf @method('PUT')
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div class="card-body">
+                    {{-- VIEW MODE --}}
+                    <div id="mws-info-view" class="row">
                         @php
-                            $editFields = [
-                                ['name' => 'title', 'label' => 'Tittle / Part Name', 'value' => $mwsPart->title],
-                                ['name' => 'part_number', 'label' => 'Part Number', 'value' => $mwsPart->part_number],
-                                ['name' => 'ref', 'label' => 'Ref', 'value' => $mwsPart->ref],
-                                ['name' => 'job_type', 'label' => 'Component Order', 'value' => $mwsPart->job_type],
-                                ['name' => 'ac_type', 'label' => 'A/C Type', 'value' => $mwsPart->ac_type],
+                            $infoFields = [
+                                ['label' => 'Tittle / Part Name', 'value' => $mwsPart->title],
+                                ['label' => 'Part Number', 'value' => $mwsPart->part_number],
+                                ['label' => 'Ref', 'value' => $mwsPart->ref ?? 'N/A'],
+                                ['label' => 'Component Order', 'value' => $mwsPart->job_type ?? 'N/A'],
+                                ['label' => 'Customer', 'value' => $mwsPart->customer->company_name ?? '-'],
+                                ['label' => 'A/C Type', 'value' => $mwsPart->ac_type ?? 'N/A'],
+                                ['label' => 'Serial Number', 'value' => $mwsPart->serial_number],
+                                ['label' => 'WBS No.', 'value' => $mwsPart->wbs_no ?? 'N/A'],
+                                ['label' => 'Worksheet No.', 'value' => $mwsPart->worksheet_no ?? 'N/A'],
+                                ['label' => 'IWO No.', 'value' => $mwsPart->iwo_no],
+                                ['label' => 'Shop Area', 'value' => $mwsPart->shop_area ?? 'N/A'],
+                                ['label' => 'Revision', 'value' => $mwsPart->revision ?? 'N/A'],
+                                ['label' => 'Zone', 'value' => $mwsPart->zone ?? 'N/A'],
                                 [
-                                    'name' => 'serial_number',
-                                    'label' => 'Serial Number',
-                                    'value' => $mwsPart->serial_number,
-                                ],
-                                ['name' => 'wbs_no', 'label' => 'WBS No.', 'value' => $mwsPart->wbs_no],
-                                [
-                                    'name' => 'worksheet_no',
-                                    'label' => 'Worksheet No.',
-                                    'value' => $mwsPart->worksheet_no,
-                                ],
-                                ['name' => 'iwo_no', 'label' => 'IWO No.', 'value' => $mwsPart->iwo_no],
-                                ['name' => 'shop_area', 'label' => 'Shop Area', 'value' => $mwsPart->shop_area],
-                                ['name' => 'revision', 'label' => 'Revision', 'value' => $mwsPart->revision],
-                                ['name' => 'zone', 'label' => 'Zone', 'value' => $mwsPart->zone],
-                                [
-                                    'name' => 'start_date',
                                     'label' => 'Start Date',
-                                    'value' => $mwsPart->start_date,
-                                    'type' => 'date',
+                                    'value' => $mwsPart->start_date
+                                        ? \Carbon\Carbon::parse($mwsPart->start_date)->format('d/m/Y')
+                                        : 'N/A',
                                 ],
+                                ['label' => 'Status', 'value' => ucfirst($mwsPart->status)],
                             ];
                         @endphp
-                        @foreach ($editFields as $f)
-                            <div class="border border-blue-200 bg-blue-50 p-3 rounded-lg">
-                                <label class="block text-xs font-semibold text-gray-600 mb-1">{{ $f['label'] }}</label>
-                                <input type="{{ $f['type'] ?? 'text' }}" name="{{ $f['name'] }}"
-                                    value="{{ $f['value'] }}"
-                                    class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                        @foreach ($infoFields as $field)
+                            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                                <div class="bg-light p-3 rounded-2 h-100 border">
+                                    <small class="d-block text-muted text-uppercase fw-bold mb-2">{{ $field['label'] }}</small>
+                                    <p class="mb-0 fw-medium">{{ $field['value'] }}</p>
+                                </div>
                             </div>
                         @endforeach
                     </div>
-                    <div class="flex space-x-2 mt-4">
-                        <button type="submit"
-                            class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded transition-colors">
-                            <i class="fas fa-save mr-1"></i> Simpan
-                        </button>
-                        <button type="button" onclick="toggleEditMwsInfo(false)"
-                            class="px-4 py-2 bg-gray-400 hover:bg-gray-500 text-white text-sm font-medium rounded transition-colors">
-                            <i class="fas fa-times mr-1"></i> Batal
-                        </button>
-                    </div>
-                </form>
+
+                    {{-- EDIT MODE --}}
+                    <form id="mws-info-edit" class="d-none" onsubmit="saveMwsInfo(event)">
+                        @csrf @method('PUT')
+                        <div class="row">
+                            @php
+                                $editFields = [
+                                    ['name' => 'title', 'label' => 'Tittle / Part Name', 'value' => $mwsPart->title],
+                                    ['name' => 'part_number', 'label' => 'Part Number', 'value' => $mwsPart->part_number],
+                                    ['name' => 'ref', 'label' => 'Ref', 'value' => $mwsPart->ref],
+                                    ['name' => 'job_type', 'label' => 'Component Order', 'value' => $mwsPart->job_type],
+                                    ['name' => 'ac_type', 'label' => 'A/C Type', 'value' => $mwsPart->ac_type],
+                                    ['name' => 'serial_number', 'label' => 'Serial Number', 'value' => $mwsPart->serial_number],
+                                    ['name' => 'wbs_no', 'label' => 'WBS No.', 'value' => $mwsPart->wbs_no],
+                                    ['name' => 'worksheet_no', 'label' => 'Worksheet No.', 'value' => $mwsPart->worksheet_no],
+                                    ['name' => 'iwo_no', 'label' => 'IWO No.', 'value' => $mwsPart->iwo_no],
+                                    ['name' => 'shop_area', 'label' => 'Shop Area', 'value' => $mwsPart->shop_area],
+                                    ['name' => 'revision', 'label' => 'Revision', 'value' => $mwsPart->revision],
+                                    ['name' => 'zone', 'label' => 'Zone', 'value' => $mwsPart->zone],
+                                    ['name' => 'start_date', 'label' => 'Start Date', 'value' => $mwsPart->start_date, 'type' => 'date'],
+                                ];
+                            @endphp
+                            @foreach ($editFields as $f)
+                                <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
+                                    <label class="form-label small fw-bold">{{ $f['label'] }}</label>
+                                    <input type="{{ $f['type'] ?? 'text' }}" name="{{ $f['name'] }}" value="{{ $f['value'] }}" class="form-control form-control-sm">
+                                </div>
+                            @endforeach
+                        </div>
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="submit" class="btn btn-sm btn-success"><i class="fas fa-save me-1"></i>Simpan</button>
+                            <button type="button" onclick="toggleEditMwsInfo(false)" class="btn btn-sm btn-secondary"><i class="fas fa-times me-1"></i>Batal</button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             {{-- ==================== ACTION BUTTONS ==================== --}}
-            <div class="flex flex-wrap gap-3">
-                <button onclick="toggleSection('stripping-section')"
-                    class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
-                    <i class="fas fa-tools"></i><span>Informasi Stripping</span>
+            <div class="mb-3 d-flex flex-wrap gap-2">
+                <button onclick="toggleSection('stripping-section')" class="btn btn-sm btn-indigo">
+                    <i class="fas fa-tools me-1"></i>Informasi Stripping
                 </button>
-
                 @can('update', $mwsPart)
-                    <button onclick="toggleSection('attachment-section')"
-                        class="flex items-center space-x-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
-                        <i class="fas fa-paperclip"></i><span>Lampiran</span>
+                    <button onclick="toggleSection('attachment-section')" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-paperclip me-1"></i>Lampiran
                     </button>
                 @endcan
-
                 @if (isset($testCases))
-                    <button onclick="toggleSection('testcase-section')"
-                        class="flex items-center space-x-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
-                        <i class="fas fa-flask"></i><span>Test Case</span>
+                    <button onclick="toggleSection('testcase-section')" class="btn btn-sm btn-purple">
+                        <i class="fas fa-flask me-1"></i>Test Case
                     </button>
                 @endif
             </div>
 
             {{-- ==================== STRIPPING SECTION ==================== --}}
-            <div id="stripping-section" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Informasi Stripping</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
-                    <div class="border p-3 rounded-lg bg-gray-50">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Tanggal
-                            Stripping</label>
-                        <p class="font-medium text-gray-800">
-                            {{ $mwsPart->stripping_date ? \Carbon\Carbon::parse($mwsPart->stripping_date)->format('d/m/Y') : 'Belum diatur' }}
-                        </p>
-                    </div>
-                    <div class="border p-3 rounded-lg bg-gray-50">
-                        <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Deadline
-                            Stripping</label>
-                        <p class="font-medium text-gray-800">
-                            {{ $mwsPart->stripping_deadline ? \Carbon\Carbon::parse($mwsPart->stripping_deadline)->format('d/m/Y') : 'Belum diatur' }}
-                        </p>
-                    </div>
-                    <div class="border p-3 rounded-lg bg-gray-50">
-                        <label
-                            class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Progress</label>
-                        @php
-                            $strippingPct = $mwsPart->stripping_percentage ?? 100;
-                            $strippingColor =
-                                $strippingPct > 75
-                                    ? 'bg-green-500'
-                                    : ($strippingPct > 40
-                                        ? 'bg-yellow-500'
-                                        : 'bg-red-500');
-                        @endphp
-                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-                            <div class="{{ $strippingColor }} h-2 rounded-full transition-all"
-                                style="width: {{ $strippingPct }}%"></div>
+            <div id="stripping-section" class="card mb-4 d-none">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">Informasi Stripping</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="bg-light p-3 rounded">
+                                <small class="d-block text-muted text-uppercase fw-bold mb-2">Tanggal Stripping</small>
+                                <p class="mb-0 fw-medium">
+                                    {{ $mwsPart->stripping_date ? \Carbon\Carbon::parse($mwsPart->stripping_date)->format('d/m/Y') : 'Belum diatur' }}
+                                </p>
+                            </div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">{{ $strippingPct }}%</p>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="bg-light p-3 rounded">
+                                <small class="d-block text-muted text-uppercase fw-bold mb-2">Deadline Stripping</small>
+                                <p class="mb-0 fw-medium">
+                                    {{ $mwsPart->stripping_deadline ? \Carbon\Carbon::parse($mwsPart->stripping_deadline)->format('d/m/Y') : 'Belum diatur' }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="bg-light p-3 rounded">
+                                <small class="d-block text-muted text-uppercase fw-bold mb-2">Progress</small>
+                                @php
+                                    $strippingPct = $mwsPart->stripping_percentage ?? 100;
+                                    $strippingColor = $strippingPct > 75 ? 'success' : ($strippingPct > 40 ? 'warning' : 'danger');
+                                @endphp
+                                <div class="progress mt-2">
+                                    <div class="progress-bar bg-{{ $strippingColor }}" style="width: {{ $strippingPct }}%"></div>
+                                </div>
+                                <small class="text-muted d-block mt-2">{{ $strippingPct }}%</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- ==================== ATTACHMENT SECTION ==================== --}}
             @can('update', $mwsPart)
-                <div id="attachment-section" class="hidden bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Lampiran MWS</h3>
-                    <div class="flex items-center space-x-3 mb-4">
-                        <input type="file" id="mws-attachment-input" multiple class="hidden"
-                            onchange="updateMwsFileName(this)">
-                        <label for="mws-attachment-input"
-                            class="cursor-pointer flex items-center space-x-2 px-4 py-2 bg-white border-2 border-dashed border-gray-300 hover:border-blue-400 rounded-lg text-sm text-gray-600 hover:text-blue-600 transition-colors">
-                            <i class="fas fa-paperclip"></i>
-                            <span id="mws-file-name-display">Pilih file lampiran...</span>
-                        </label>
-                        <button onclick="uploadMwsAttachment('{{ $mwsPart->id }}')"
-                            class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors">
-                            <i class="fas fa-upload mr-1"></i> Upload
-                        </button>
+                <div id="attachment-section" class="card mb-4 d-none">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">Lampiran MWS</h5>
                     </div>
-                    <ul class="space-y-2" id="mws-attachment-list">
-                        @forelse($mwsPart->attachments ?? [] as $att)
-                            <li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-lg border">
-                                <a href="{{ $att['file_url'] }}" target="_blank"
-                                    class="text-blue-600 hover:underline text-sm flex items-center space-x-2">
-                                    <i class="fas fa-file text-gray-400"></i>
-                                    <span>{{ $att['original_filename'] }}</span>
-                                </a>
-                                @can('update', $mwsPart)
-                                    <button onclick="deleteMwsAttachment('{{ $mwsPart->id }}', '{{ $att['public_id'] }}')"
-                                        class="text-red-500 hover:text-red-700 text-sm font-bold ml-2" title="Hapus">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                @endcan
-                            </li>
-                        @empty
-                            <li class="text-gray-500 text-sm italic">Belum ada lampiran MWS.</li>
-                        @endforelse
-                    </ul>
+                    <div class="card-body">
+                        <div class="d-flex gap-2 mb-3">
+                            <input type="file" id="mws-attachment-input" multiple class="d-none" onchange="updateMwsFileName(this)">
+                            <label for="mws-attachment-input" class="btn btn-outline-secondary btn-sm flex-grow-1">
+                                <i class="fas fa-paperclip me-1"></i>
+                                <span id="mws-file-name-display">Pilih file lampiran...</span>
+                            </label>
+                            <button onclick="uploadMwsAttachment('{{ $mwsPart->id }}')" class="btn btn-sm btn-primary">
+                                <i class="fas fa-upload me-1"></i>Upload
+                            </button>
+                        </div>
+                        <ul class="list-group" id="mws-attachment-list">
+                            @forelse($mwsPart->attachments ?? [] as $att)
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="{{ $att['file_url'] }}" target="_blank" class="text-decoration-none">
+                                        <i class="fas fa-file text-muted me-2"></i>{{ $att['original_filename'] }}
+                                    </a>
+                                    @can('update', $mwsPart)
+                                        <button onclick="deleteMwsAttachment('{{ $mwsPart->id }}', '{{ $att['public_id'] }}')" class="btn btn-sm btn-link text-danger" title="Hapus">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    @endcan
+                                </li>
+                            @empty
+                                <li class="list-group-item text-muted text-center">Belum ada lampiran MWS.</li>
+                            @endforelse
+                        </ul>
+                    </div>
                 </div>
             @endcan
 
             {{-- ==================== GENERATE STEPS ==================== --}}
             @can('update', $mwsPart)
                 @if ($mwsPart->steps->isEmpty())
-                    <div class="flex">
+                    <div class="mb-3">
                         <form action="{{ route('mws.generateSteps', $mwsPart->id) }}" method="POST">
                             @csrf
-                            <button type="submit"
-                                class="flex items-center space-x-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-medium shadow-sm transition-colors">
-                                <i class="fas fa-magic"></i><span>Generate Steps dari Template</span>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-magic me-1"></i>Generate Steps dari Template
                             </button>
                         </form>
                     </div>
@@ -552,140 +304,101 @@
             @endcan
 
             {{-- ==================== MAINTENANCE WORK SHEET ==================== --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center flex-wrap gap-3">
-                    <h2 class="text-xl font-semibold text-gray-800">Maintenance Work Sheet</h2>
-                    <div class="flex items-center space-x-2 flex-wrap gap-2">
+            <div class="card">
+                <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="mb-0">Maintenance Work Sheet</h5>
+                    <div class="d-flex gap-2 flex-wrap">
                         @can('update', $mwsPart)
-                            {{-- Smart Delete (bulk) --}}
-                            <button id="smart-delete-btn" onclick="handleSmartDelete('{{ $mwsPart->id }}')"
-                                class="hidden px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
-                                <i class="fas fa-trash mr-1"></i> Hapus Semua Step
+                            <button id="smart-delete-btn" onclick="handleSmartDelete('{{ $mwsPart->id }}')" class="btn btn-sm btn-danger d-none">
+                                <i class="fas fa-trash me-1"></i>Hapus Semua Step
                             </button>
-
-                            {{-- Add Step --}}
-                            <button onclick="addFirstStep('{{ $mwsPart->id }}')"
-                                class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
-                                title="Tambah Step Baru">
-                                <i class="fas fa-plus"></i>
+                            <button onclick="addFirstStep('{{ $mwsPart->id }}')" class="btn btn-sm btn-success" title="Tambah Step Baru">
+                                <i class="fas fa-plus me-1"></i>Add Step
                             </button>
-
-                            {{-- Print --}}
-                            <a href="{{ route('mws.print', $mwsPart->id) }}" target="_blank"
-                                class="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors">
-                                <i class="fas fa-print"></i><span>Print MWS</span>
+                            <a href="{{ route('mws.print', $mwsPart->id) }}" target="_blank" class="btn btn-sm btn-primary">
+                                <i class="fas fa-print me-1"></i>Print MWS
                             </a>
                         @endcan
                     </div>
                 </div>
-
-                {{-- MWS Locked Banner --}}
-                @php
-                    $isMechanic = auth()->user()->hasRole('mechanic');
-                @endphp
-                @if ($isMwsLocked && $isMechanic)
-                    <div
-                        class="mx-4 mt-4 p-4 bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500 rounded-md shadow-sm">
-                        <div class="flex items-start">
-                            <i class="fas fa-lock text-yellow-500 mt-0.5 mr-3"></i>
-                            <p class="text-sm">
-                                Lembar kerja ini belum dapat diisi. Harap tunggu hingga Admin Approved bagian
-                                <strong>"Prepared By"</strong> dan Superadmin Approved bagian
-                                <strong>"Approved By"</strong>.
-                            </p>
+                <div class="card-body">
+                    {{-- MWS Locked Banner --}}
+                    @php
+                        $isMechanic = auth()->user()->hasRole('mechanic');
+                    @endphp
+                    @if ($isMwsLocked && $isMechanic)
+                        <div class="alert alert-warning mb-3 border-start border-3">
+                            <i class="fas fa-lock me-2"></i>
+                            Lembar kerja ini belum dapat diisi. Harap tunggu hingga Admin Approved bagian
+                            <strong>"Prepared By"</strong> dan Superadmin Approved bagian
+                            <strong>"Approved By"</strong>.
                         </div>
-                    </div>
-                @endif
+                    @endif
 
-                {{-- ==================== CONSUMABLES, MATERIALS & EXPENDABLES ==================== --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-                        <h2 class="text-lg font-semibold text-gray-800">Consumables, Materials & Expendables</h2>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="text-left p-3 font-semibold text-gray-700 w-2/5">Name</th>
-                                    <th class="text-left p-3 font-semibold text-gray-700 w-2/5">Identification / References
-                                    </th>
-                                    <th class="text-center p-3 font-semibold text-gray-700 w-1/5">Quantity</th>
-                                    @can('update', $mwsPart)
-                                        <th class="text-center p-3 font-semibold text-gray-700 w-24">Aksi</th>
-                                    @endcan
-                                </tr>
-                            </thead>
-                            <tbody id="consumables-tbody">
-                                @forelse($mwsPart->consumables as $consumable)
-                                    <tr id="consumable-row-{{ $consumable->id }}" class="border-t border-gray-100">
-                                        <td class="p-3">
-                                            <span id="cons-name-{{ $consumable->id }}">{{ $consumable->name }}</span>
-                                        </td>
-                                        <td class="p-3">
-                                            <span
-                                                id="cons-ident-{{ $consumable->id }}">{{ $consumable->identification ?? '-' }}</span>
-                                        </td>
-                                        <td class="p-3 text-center">
-                                            <span id="cons-qty-{{ $consumable->id }}">{{ $consumable->quantity }}</span>
-                                        </td>
+                    {{-- ==================== CONSUMABLES, MATERIALS & EXPENDABLES ==================== --}}
+                    <div class="border rounded-3 p-3 mb-4">
+                        <h6 class="fw-semibold mb-3">Consumables, Materials & Expendables</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Identification / References</th>
+                                        <th class="text-center">Quantity</th>
                                         @can('update', $mwsPart)
-                                            <td class="p-3 text-center">
-                                                <button onclick="editConsumable({{ $consumable->id }})"
-                                                    class="p-1 text-blue-600 hover:text-blue-800" title="Edit">
-                                                    <i class="fas fa-edit text-xs"></i>
-                                                </button>
-                                                <button
-                                                    onclick="deleteConsumable('{{ $mwsPart->id }}', {{ $consumable->id }})"
-                                                    class="p-1 text-red-600 hover:text-red-800" title="Hapus">
-                                                    <i class="fas fa-trash-alt text-xs"></i>
-                                                </button>
-                                            </td>
+                                            <th class="text-center">Aksi</th>
                                         @endcan
                                     </tr>
-                                @empty
-                                    <tr id="consumables-empty-row">
-                                        <td colspan="4" class="p-4 text-center text-gray-500 italic text-sm">
-                                            Belum ada consumable.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                            {{-- Form tambah baru (hanya admin) --}}
-                            @can('update', $mwsPart)
-                                <tfoot>
-                                    <tr class="bg-blue-50 border-t-2 border-blue-200">
-                                        <td class="p-2">
-                                            <input type="text" id="new-cons-name"
-                                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                                                placeholder="Nama consumable...">
-                                        </td>
-                                        <td class="p-2">
-                                            <input type="text" id="new-cons-ident"
-                                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                                                placeholder="Identification / References...">
-                                        </td>
-                                        <td class="p-2">
-                                            <input type="text" id="new-cons-qty"
-                                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                                                placeholder="AR">
-                                        </td>
-                                        <td class="p-2 text-center">
-                                            <button onclick="addConsumable('{{ $mwsPart->id }}')"
-                                                class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded">
-                                                <i class="fas fa-plus mr-1"></i> Tambah
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tfoot>
-                            @endcan
-                        </table>
+                                </thead>
+                                <tbody id="consumables-tbody">
+                                    @forelse($mwsPart->consumables as $consumable)
+                                        <tr id="consumable-row-{{ $consumable->id }}">
+                                            <td><span id="cons-name-{{ $consumable->id }}">{{ $consumable->name }}</span></td>
+                                            <td><span id="cons-ident-{{ $consumable->id }}">{{ $consumable->identification ?? '-' }}</span></td>
+                                            <td class="text-center"><span id="cons-qty-{{ $consumable->id }}">{{ $consumable->quantity }}</span></td>
+                                            @can('update', $mwsPart)
+                                                <td class="text-center" id="consumable-actions-{{ $consumable->id }}">
+                                                    <button type="button" onclick="editConsumable('{{ $mwsPart->id }}', {{ $consumable->id }})" class="btn btn-outline-primary btn-sm me-1" title="Edit">Edit</button>
+                                                    <button type="button" onclick="deleteConsumable('{{ $mwsPart->id }}', {{ $consumable->id }})" class="btn btn-outline-danger btn-sm" title="Hapus">Hapus</button>
+                                                </td>
+                                            @endcan
+                                        </tr>
+                                    @empty
+                                        <tr id="consumables-empty-row">
+                                            <td colspan="4" class="text-center text-muted py-3">Belum ada consumable.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                                @can('update', $mwsPart)
+                                    <tfoot>
+                                        <tr id="consumable-add-trigger" class="table-light">
+                                            <td colspan="4" class="text-center py-2">
+                                                <button type="button" onclick="toggleConsumableAdd(true)" class="btn btn-outline-primary btn-sm px-3">
+                                                    <i class="fas fa-plus me-1"></i>Add Consumable
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr id="consumable-add-row" class="table-light d-none">
+                                            <td><input type="text" id="new-cons-name" class="form-control form-control-sm" placeholder="Nama consumable..."></td>
+                                            <td><input type="text" id="new-cons-ident" class="form-control form-control-sm" placeholder="Identification / References..."></td>
+                                            <td><input type="text" id="new-cons-qty" class="form-control form-control-sm" placeholder="AR"></td>
+                                            <td class="text-center">
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <button type="button" onclick="addConsumable('{{ $mwsPart->id }}')" class="btn btn-success btn-sm px-3">Save</button>
+                                                    <button type="button" onclick="toggleConsumableAdd(false)" class="btn btn-secondary btn-sm px-3">Cancel</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                @endcan
+                            </table>
+                        </div>
                     </div>
-                </div>
 
                 {{-- TABLE --}}
                 <div class="overflow-x-auto">
-                    <table class="worksheet-table">
-                        <thead class="bg-gray-100">
+                    <table class="worksheet-table table table-bordered table-hover">
+                        <thead>
                             <tr>
                                 @can('update', $mwsPart)
                                     <th rowspan="2" class="col-select text-center p-2 align-middle">
@@ -693,22 +406,22 @@
                                     </th>
                                 @endcan
                                 <th rowspan="2"
-                                    class="col-no text-center p-3 text-sm font-semibold text-gray-700 align-middle">NO</th>
+                                    class="col-no text-center p-3 fw-bold text-secondary align-middle">NO</th>
                                 <th rowspan="2"
-                                    class="col-desc text-left p-3 text-sm font-semibold text-gray-700 align-middle">
+                                    class="col-desc text-start p-3 fw-bold text-secondary align-middle">
                                     DESCRIPTION</th>
                                 <th colspan="2"
-                                    class="text-center p-3 text-sm font-semibold text-gray-700 bg-blue-100">PLAN</th>
+                                    class="text-center p-3 fw-bold text-secondary">PLAN</th>
                                 <th colspan="2"
-                                    class="text-center p-3 text-sm font-semibold text-gray-700 bg-green-100">ACTUAL</th>
+                                    class="text-center p-3 fw-bold text-secondary">ACTUAL</th>
                                 <th rowspan="2"
-                                    class="col-tech text-center p-3 text-sm font-semibold text-gray-700 align-middle">TECH
+                                    class="col-tech text-center p-3 fw-bold text-secondary align-middle">TECH
                                 </th>
                                 <th rowspan="2"
-                                    class="col-insp text-center p-3 text-sm font-semibold text-gray-700 align-middle">INSP
+                                    class="col-insp text-center p-3 fw-bold text-secondary align-middle">INSP
                                 </th>
                                 <th rowspan="2"
-                                    class="col-action text-center p-3 text-sm font-semibold text-gray-700 align-middle">
+                                    class="col-action text-center p-3 fw-bold text-secondary align-middle">
                                     @can('update', $mwsPart)
                                         AKSI
                                     @else
@@ -716,20 +429,20 @@
                                     @endcan
                                 </th>
                                 <th rowspan="2"
-                                    class="col-attach text-center p-3 text-sm font-semibold text-gray-700 align-middle">
+                                    class="col-attach text-center p-3 fw-bold text-secondary align-middle">
                                     LAMPIRAN PER STEP</th>
                                 <th rowspan="2"
-                                    class="col-status text-center p-3 text-sm font-semibold text-gray-700 align-middle">
+                                    class="col-status text-center p-3 fw-bold text-secondary align-middle">
                                     STATUS</th>
                             </tr>
                             <tr>
-                                <th class="col-plan-man text-center p-3 text-sm font-semibold text-gray-600 bg-blue-50">MAN
+                                <th class="col-plan-man text-center p-3 fw-bold text-muted">MAN
                                 </th>
-                                <th class="col-plan-hrs text-center p-3 text-sm font-semibold text-gray-600 bg-blue-50">
+                                <th class="col-plan-hrs text-center p-3 fw-bold text-muted">
                                     HOURS</th>
-                                <th class="col-act-man text-center p-3 text-sm font-semibold text-gray-600 bg-green-50">MAN
+                                <th class="col-act-man text-center p-3 fw-bold text-muted">MAN
                                 </th>
-                                <th class="col-act-hrs text-center p-3 text-sm font-semibold text-gray-600 bg-green-50">
+                                <th class="col-act-hrs text-center p-3 fw-bold text-muted">
                                     HOURS</th>
                             </tr>
                         </thead>
@@ -750,7 +463,7 @@
                                     $stepInProgress = $step->status === 'in_progress';
                                 @endphp
                                 <tr id="step-row-{{ $step->no }}"
-                                    class="{{ $rowClass }} {{ $isCheck ? 'check-step-row' : '' }} hover:bg-gray-50">
+                                    class="step-row {{ $rowClass }} {{ $isCheck ? 'check-step-row' : '' }}">
 
                                     {{-- CHECKBOX --}}
                                     @can('update', $mwsPart)
@@ -760,136 +473,117 @@
                                     @endcan
 
                                     {{-- NO --}}
-                                    <td class="col-no text-center font-medium align-top">{{ $step->no }}</td>
+                                    <td class="col-no text-center align-top p-2">
+                                        <span class="step-no-badge">Step {{ $step->no }}</span>
+                                    </td>
 
                                     {{-- DESCRIPTION --}}
-                                    <td class="col-desc text-sm align-top">
-                                        <div id="step-desc-{{ $step->no }}" class="font-semibold text-gray-800">
+                                    <td class="col-desc align-top p-3">
+                                        <div id="step-desc-{{ $step->no }}" class="fw-bold text-dark fs-5 mb-3">
                                             {{ $step->description }}
                                         </div>
-                                        {{-- CAUTION --}}
+
                                         @if ($step->caution)
-                                            <div
-                                                class="mt-2 p-2 bg-yellow-50 border-l-4 border-yellow-400 rounded text-xs">
-                                                <span class="font-bold text-yellow-800 uppercase">Caution: </span>
-                                                <span class="text-yellow-700">{{ $step->caution }}</span>
+                                            <div class="alert alert-warning py-3 px-3 mb-3 small lh-base">
+                                                <span class="fw-bold text-uppercase me-1">Caution:</span>
+                                                <span>{{ $step->caution }}</span>
                                             </div>
                                         @endif
 
-                                        {{-- NOTE --}}
                                         @if ($step->note)
-                                            <div
-                                                class="mt-1 p-2 bg-blue-50 border-l-4 border-blue-300 rounded text-xs italic">
-                                                <span class="font-bold text-blue-700">Note: </span>
-                                                <span class="text-blue-600">{{ $step->note }}</span>
+                                            <div class="alert alert-info py-3 px-3 mb-3 small lh-base">
+                                                <span class="fw-bold me-1">Note:</span>
+                                                <span>{{ $step->note }}</span>
                                             </div>
                                         @endif
 
-                                        {{-- Edit Caution (admin only) --}}
                                         @can('update', $mwsPart)
-                                            <div class="mt-2 pt-2 border-t border-gray-100">
-                                                <div class="flex space-x-1 mb-1">
-                                                    <button onclick="toggleCautionEdit({{ $step->no }}, true)"
-                                                        class="text-xs text-yellow-600 hover:text-yellow-800 font-medium">
-                                                        <i class="fas fa-exclamation-triangle mr-1"></i>
-                                                        {{ $step->caution ? 'Edit Caution' : '+ Caution' }}
-                                                    </button>
-                                                    <span class="text-gray-300">|</span>
-                                                    <button onclick="toggleNoteEdit({{ $step->no }}, true)"
-                                                        class="text-xs text-blue-600 hover:text-blue-800 font-medium">
-                                                        <i class="fas fa-sticky-note mr-1"></i>
-                                                        {{ $step->note ? 'Edit Note' : '+ Note' }}
-                                                    </button>
+                                            <div class="d-flex flex-wrap align-items-center gap-3 mb-3 pb-2 border-bottom">
+                                                <button onclick="toggleCautionEdit({{ $step->no }}, true)"
+                                                    class="btn btn-link btn-sm text-warning p-0 text-decoration-none">
+                                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                                    {{ $step->caution ? 'Edit Caution' : '+ Caution' }}
+                                                </button>
+                                                <button onclick="toggleNoteEdit({{ $step->no }}, true)"
+                                                    class="btn btn-link btn-sm text-primary p-0 text-decoration-none">
+                                                    <i class="fas fa-sticky-note me-1"></i>
+                                                    {{ $step->note ? 'Edit Note' : '+ Note' }}
+                                                </button>
+                                            </div>
+
+                                            <div id="caution-edit-{{ $step->no }}" class="hidden mb-3">
+                                                <textarea id="caution-input-{{ $step->no }}" class="form-control form-control-sm" rows="2"
+                                                    placeholder="Tulis teks CAUTION...">{{ $step->caution }}</textarea>
+                                                <div class="d-flex gap-2 mt-2">
+                                                    <button onclick="saveCaution('{{ $mwsPart->id }}', {{ $step->no }})"
+                                                        class="btn btn-warning btn-sm text-white">Simpan</button>
+                                                    <button onclick="toggleCautionEdit({{ $step->no }}, false)"
+                                                        class="btn btn-secondary btn-sm">Batal</button>
                                                 </div>
-                                                {{-- Caution edit area --}}
-                                                <div id="caution-edit-{{ $step->no }}" class="hidden mt-1">
-                                                    <textarea id="caution-input-{{ $step->no }}" class="w-full border rounded px-2 py-1 text-xs" rows="2"
-                                                        placeholder="Tulis teks CAUTION...">{{ $step->caution }}</textarea>
-                                                    <div class="flex space-x-1 mt-1">
-                                                        <button
-                                                            onclick="saveCaution('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                            class="px-2 py-1 bg-yellow-500 text-white text-xs rounded">Simpan</button>
-                                                        <button onclick="toggleCautionEdit({{ $step->no }}, false)"
-                                                            class="px-2 py-1 bg-gray-400 text-white text-xs rounded">Batal</button>
-                                                    </div>
-                                                </div>
-                                                {{-- Note edit area --}}
-                                                <div id="note-edit-{{ $step->no }}" class="hidden mt-1">
-                                                    <textarea id="note-input-{{ $step->no }}" class="w-full border rounded px-2 py-1 text-xs" rows="2"
-                                                        placeholder="Tulis teks Note...">{{ $step->note }}</textarea>
-                                                    <div class="flex space-x-1 mt-1">
-                                                        <button
-                                                            onclick="saveNote('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                            class="px-2 py-1 bg-blue-500 text-white text-xs rounded">Simpan</button>
-                                                        <button onclick="toggleNoteEdit({{ $step->no }}, false)"
-                                                            class="px-2 py-1 bg-gray-400 text-white text-xs rounded">Batal</button>
-                                                    </div>
+                                            </div>
+
+                                            <div id="note-edit-{{ $step->no }}" class="hidden mb-3">
+                                                <textarea id="note-input-{{ $step->no }}" class="form-control form-control-sm" rows="2"
+                                                    placeholder="Tulis teks Note...">{{ $step->note }}</textarea>
+                                                <div class="d-flex gap-2 mt-2">
+                                                    <button onclick="saveNote('{{ $mwsPart->id }}', {{ $step->no }})"
+                                                        class="btn btn-primary btn-sm">Simpan</button>
+                                                    <button onclick="toggleNoteEdit({{ $step->no }}, false)"
+                                                        class="btn btn-secondary btn-sm">Batal</button>
                                                 </div>
                                             </div>
                                         @endcan
-                                        {{-- Details List --}}
-                                        <div id="details-list-{{ $step->no }}" class="mt-2 pl-4">
-                                            <ul class="list-disc list-inside text-gray-600 space-y-1 text-xs">
+
+                                        <div id="details-list-{{ $step->no }}" class="mb-3">
+                                            <ul class="mb-0 small ps-3 lh-lg">
                                                 @foreach ($step->details ?? [] as $i => $detail)
-                                                    <li id="detail-item-{{ $step->no }}-{{ $i }}">
-                                                        <span
-                                                            id="detail-text-{{ $step->no }}-{{ $i }}">{{ $detail }}</span>
+                                                    <li id="detail-item-{{ $step->no }}-{{ $i }}" class="mb-2">
+                                                        <span id="detail-text-{{ $step->no }}-{{ $i }}">{{ $detail }}</span>
                                                         @can('update', $mwsPart)
-                                                            <button
-                                                                onclick="editDetail('{{ $mwsPart->id }}', {{ $step->no }}, {{ $i }})"
-                                                                class="ml-1 text-blue-500 hover:text-blue-700 text-xs font-semibold">(Edit)</button>
-                                                            <button
-                                                                onclick="deleteDetail('{{ $mwsPart->id }}', {{ $step->no }}, {{ $i }})"
-                                                                class="ml-1 text-red-500 hover:text-red-700 text-xs font-semibold">(Hapus)</button>
+                                                            <button onclick="editDetail('{{ $mwsPart->id }}', {{ $step->no }}, {{ $i }})"
+                                                                class="btn btn-link btn-sm p-0 ms-2 text-decoration-none">Edit</button>
+                                                            <button onclick="deleteDetail('{{ $mwsPart->id }}', {{ $step->no }}, {{ $i }})"
+                                                                class="btn btn-link btn-sm p-0 ms-1 text-danger text-decoration-none">Hapus</button>
                                                         @endcan
                                                     </li>
                                                 @endforeach
                                             </ul>
                                         </div>
-                                        {{-- SUB-STEPS --}}
-                                        <div id="substeps-list-{{ $step->no }}" class="mt-2 pl-4">
+
+                                        <div id="substeps-list-{{ $step->no }}" class="mb-3">
                                             @foreach ($step->subSteps as $sub)
                                                 <div id="substep-item-{{ $sub->id }}"
-                                                    class="flex items-start space-x-1 text-xs text-gray-700 py-0.5">
-                                                    <span
-                                                        class="font-semibold text-gray-500 mr-1 flex-shrink-0">{{ $sub->label }}.</span>
-                                                    <span id="substep-text-{{ $sub->id }}"
-                                                        class="flex-1">{{ $sub->description }}</span>
+                                                    class="d-flex align-items-start justify-content-between gap-3 border rounded-3 p-3 mb-2 bg-light">
+                                                    <div class="small text-dark d-flex gap-2 lh-base">
+                                                        <span class="fw-semibold text-secondary">{{ $sub->label }}.</span>
+                                                        <span id="substep-text-{{ $sub->id }}">{{ $sub->description }}</span>
+                                                    </div>
                                                     @can('update', $mwsPart)
-                                                        <button
-                                                            onclick="editSubStep('{{ $mwsPart->id }}', {{ $step->no }}, {{ $sub->id }})"
-                                                            class="text-blue-500 hover:text-blue-700 flex-shrink-0">(Edit)</button>
-                                                        <button
-                                                            onclick="deleteSubStep('{{ $mwsPart->id }}', {{ $step->no }}, {{ $sub->id }})"
-                                                            class="text-red-500 hover:text-red-700 flex-shrink-0">(Hapus)</button>
+                                                        <div class="d-flex gap-2 flex-shrink-0">
+                                                            <button onclick="editSubStep('{{ $mwsPart->id }}', {{ $step->no }}, {{ $sub->id }})"
+                                                                class="btn btn-link btn-sm p-0 text-decoration-none">Edit</button>
+                                                            <button onclick="deleteSubStep('{{ $mwsPart->id }}', {{ $step->no }}, {{ $sub->id }})"
+                                                                class="btn btn-link btn-sm p-0 text-danger text-decoration-none">Hapus</button>
+                                                        </div>
                                                     @endcan
                                                 </div>
                                             @endforeach
                                         </div>
 
-                                        {{-- Tambah Sub-Step (admin only) --}}
                                         @can('update', $mwsPart)
-                                            <div class="mt-2 flex items-center space-x-1">
+                                            <div class="d-flex gap-2 mb-3">
                                                 <input type="text" id="new-substep-input-{{ $step->no }}"
-                                                    class="flex-1 border border-gray-200 rounded px-2 py-1 text-xs"
+                                                    class="form-control form-control-sm py-2"
                                                     placeholder="Tambah sub-step (a, b, c)...">
                                                 <button onclick="addSubStep('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                    class="px-2 py-1 bg-indigo-500 hover:bg-indigo-600 text-white text-xs rounded whitespace-nowrap">
-                                                    + Sub-step
-                                                </button>
+                                                    class="btn btn-primary btn-sm px-3 text-nowrap">+ Sub-step</button>
                                             </div>
-                                        @endcan
 
-                                        {{-- Add Detail --}}
-                                        @can('update', $mwsPart)
-                                            <div class="mt-3 pt-3 border-t border-gray-100">
+                                            <div class="pt-3 border-top">
                                                 <input type="text" id="new-detail-input-{{ $step->no }}"
-                                                    class="w-full border border-gray-200 rounded px-2 py-1 text-xs focus:ring-1 focus:ring-blue-400"
+                                                    class="form-control form-control-sm py-2"
                                                     placeholder="Tambah catatan baru...">
-                                                <button onclick="addDetail('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                    class="mt-1 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium rounded transition-colors">
-                                                    Tambah Catatan
-                                                </button>
+                                                <button onclick="addDetail('{{ $mwsPart->id }}', {{ $step->no }})" class="btn btn-outline-primary btn-sm mt-3 px-3">Tambah Catatan</button>
                                             </div>
                                         @endcan
                                     </td>
@@ -898,33 +592,33 @@
                                     <td class="col-plan-man align-top">
                                         @can('update', $mwsPart)
                                             <div id="plan-man-view-{{ $step->no }}"
-                                                class="flex items-center justify-between space-x-1">
-                                                <span id="plan-man-text-{{ $step->no }}" class="text-sm text-gray-700">
+                                                class="d-flex align-items-center justify-content-between gap-2">
+                                                <span id="plan-man-text-{{ $step->no }}" class="small text-secondary">
                                                     {{ $step->plan_man ?? 'N/A' }}
                                                 </span>
                                                 <button onclick="togglePlanEdit({{ $step->no }}, 'man', true)"
-                                                    class="p-1 text-blue-600 hover:text-blue-800 rounded"
+                                                    class="btn btn-link btn-sm p-1"
                                                     title="Edit Plan Man">
-                                                    <i class="fas fa-edit text-xs"></i>
+                                                    <i class="fas fa-edit"></i>
                                                 </button>
                                             </div>
-                                            <div id="plan-man-edit-{{ $step->no }}" class="plan-edit-area">
+                                            <div id="plan-man-edit-{{ $step->no }}" class="d-none">
                                                 <input type="text" id="plan-man-input-{{ $step->no }}"
                                                     value="{{ $step->plan_man }}"
-                                                    class="w-full border rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-400"
+                                                    class="form-control form-control-sm mb-2"
                                                     placeholder="Contoh: 2">
                                                 <button
                                                     onclick="savePlan('{{ $mwsPart->id }}', {{ $step->no }}, 'man')"
-                                                    class="mt-1 w-full px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded">
-                                                    <i class="fas fa-save mr-1"></i> Simpan
+                                                    class="btn btn-success btn-sm w-100 mb-2">
+                                                    <i class="fas fa-save me-1"></i> Simpan
                                                 </button>
                                                 <button onclick="togglePlanEdit({{ $step->no }}, 'man', false)"
-                                                    class="mt-1 w-full px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white text-xs rounded">
+                                                    class="btn btn-secondary btn-sm w-100">
                                                     Batal
                                                 </button>
                                             </div>
                                         @else
-                                            <p class="text-sm text-center text-gray-600">{{ $step->plan_man ?? 'N/A' }}</p>
+                                            <p class="text-sm text-center text-muted">{{ $step->plan_man ?? 'N/A' }}</p>
                                         @endcan
                                     </td>
 
@@ -932,26 +626,26 @@
                                     <td class="col-plan-hrs align-top">
                                         @can('update', $mwsPart)
                                             <div id="plan-hours-view-{{ $step->no }}"
-                                                class="flex items-center justify-between space-x-1">
+                                                class="d-flex align-items-center justify-content-between gap-2">
                                                 <span id="plan-hours-text-{{ $step->no }}"
-                                                    class="text-sm text-gray-700">
+                                                    class="small text-secondary">
                                                     {{ $step->plan_hours ?? 'N/A' }}
                                                 </span>
                                                 <button onclick="togglePlanEdit({{ $step->no }}, 'hours', true)"
-                                                    class="p-1 text-blue-600 hover:text-blue-800 rounded"
+                                                    class="btn btn-link btn-sm p-1"
                                                     title="Edit Plan Hours">
-                                                    <i class="fas fa-edit text-xs"></i>
+                                                    <i class="fas fa-edit"></i>
                                                 </button>
                                             </div>
-                                            <div id="plan-hours-edit-{{ $step->no }}" class="plan-edit-area">
+                                            <div id="plan-hours-edit-{{ $step->no }}" class="d-none">
                                                 <input type="text" id="plan-hours-input-{{ $step->no }}"
                                                     value="{{ $step->plan_hours }}"
-                                                    class="w-full border rounded px-2 py-1 text-sm focus:ring-1 focus:ring-blue-400"
+                                                    class="form-control form-control-sm mb-2"
                                                     placeholder="Contoh: 8:00">
                                                 <button
                                                     onclick="savePlan('{{ $mwsPart->id }}', {{ $step->no }}, 'hours')"
-                                                    class="mt-1 w-full px-2 py-1 bg-green-500 hover:bg-green-600 text-white text-xs font-medium rounded">
-                                                    <i class="fas fa-save mr-1"></i> Simpan
+                                                    class="btn btn-success btn-sm w-100 mb-2">
+                                                    <i class="fas fa-save me-1"></i> Simpan
                                                 </button>
                                                 <button onclick="togglePlanEdit({{ $step->no }}, 'hours', false)"
                                                     class="mt-1 w-full px-2 py-1 bg-gray-400 hover:bg-gray-500 text-white text-xs rounded">
@@ -959,7 +653,7 @@
                                                 </button>
                                             </div>
                                         @else
-                                            <p class="text-sm text-center text-gray-600">{{ $step->plan_hours ?? 'N/A' }}</p>
+                                            <p class="text-sm text-center text-muted">{{ $step->plan_hours ?? 'N/A' }}</p>
                                         @endcan
                                     </td>
 
@@ -977,19 +671,19 @@
                                                 <ul class="text-xs space-y-1">
                                                     @foreach ($stepMechanics as $mech)
                                                         <li
-                                                            class="flex items-center justify-between bg-gray-200 px-2 py-1 rounded">
+                                                            class="d-flex align-items-center justify-content-between bg-secondary-light p-2 rounded">
                                                             <span>{{ $mech->name }} - ({{ $mech->nik }})</span>
                                                             @if (in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
                                                                 <button
                                                                     onclick="removeMechanicFromStep('{{ $mwsPart->id }}', {{ $step->no }}, '{{ $mech->nik }}')"
-                                                                    class="ml-2 text-red-500 hover:text-red-700 font-bold"
-                                                                    title="Hapus Mekanik">&times;</button>
+                                                                    class="btn btn-link btn-sm text-danger ms-2 p-0"
+                                                                    title="Hapus Mekanik"><i class="fas fa-times"></i></button>
                                                             @endif
                                                         </li>
                                                     @endforeach
                                                 </ul>
                                             @else
-                                                <p class="text-xs text-gray-500 italic">Belum ada mekanik.</p>
+                                                <p class="small text-muted italic">Belum ada mekanik.</p>
                                             @endif
 
                                             {{-- Admin: Assign Mekanik Dropdown --}}
@@ -997,7 +691,7 @@
                                                 @if (count($mechanicNiks) < ($step->plan_man ?? 999))
                                                     <div class="mt-2">
                                                         <select id="assign-mechanic-select-{{ $step->no }}"
-                                                            class="w-full border rounded px-2 py-1 text-xs mb-1">
+                                                            class="form-select form-select-sm w-100 mb-2">
                                                             <option value="">-- Pilih Mekanik --</option>
                                                             {{-- Ini perlu di-pass dari controller --}}
                                                             @foreach ($availableMechanics ?? [] as $mechanic)
@@ -1008,12 +702,12 @@
                                                         </select>
                                                         <button
                                                             onclick="assignMechanicToStep('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                            class="w-full px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-bold transition-colors">
-                                                            <i class="fas fa-user-plus mr-1"></i> Assign
+                                                            class="btn btn-primary btn-sm w-100">
+                                                            <i class="fas fa-user-plus me-1"></i> Assign
                                                         </button>
                                                     </div>
                                                 @else
-                                                    <p class="text-xs text-orange-500 mt-1">Slot mekanik penuh
+                                                    <p class="small text-warning mt-1">Slot mekanik penuh
                                                         ({{ $step->plan_man }}).</p>
                                                 @endif
                                             @endif
@@ -1022,11 +716,11 @@
                                             @if ($isMechanic && !$userInStep && !$techApproved)
                                                 <button
                                                     onclick="addMeToStep('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                    class="w-full mt-1 px-2 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-xs font-bold transition-colors {{ $isMwsLocked || $planIncomplete || count($mechanicNiks) >= ($step->plan_man ?? 999) ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                    class="btn btn-success btn-sm w-100 {{ $isMwsLocked || $planIncomplete || count($mechanicNiks) >= ($step->plan_man ?? 999) ? 'disabled opacity-50' : '' }}"
                                                     @if ($isMwsLocked) disabled title="MWS terkunci."
                                                     @elseif($planIncomplete) disabled title="PLAN MAN dan PLAN HOURS harus diisi dulu."
                                                     @elseif(count($mechanicNiks) >= ($step->plan_man ?? 999)) disabled title="Slot mekanik sudah penuh." @endif>
-                                                    <i class="fas fa-sign-in-alt mr-1"></i> Sign On
+                                                    <i class="fas fa-sign-in-alt me-1"></i> Sign On
                                                 </button>
                                             @endif
                                         </div>
@@ -1034,11 +728,11 @@
 
                                     {{-- ACTUAL HOURS --}}
                                     <td class="col-act-hrs align-top">
-                                        <div class="flex flex-col items-center space-y-1">
+                                        <div class="d-flex flex-column align-items-center gap-2">
                                             <input type="hidden" id="hours-{{ $step->no }}"
                                                 value="{{ $step->hours }}">
                                             <span id="hours-display-{{ $step->no }}"
-                                                class="font-mono text-lg font-semibold text-gray-700"
+                                                class="font-monospace text-larger fw-bold text-dark"
                                                 @if ($timerRunning) data-start-time="{{ $step->timer_start_time }}"
                                             data-initial-hours="{{ $step->hours }}" @endif>
                                                 {{ $step->hours }}
@@ -1048,19 +742,17 @@
                                                 @if ($timerRunning)
                                                     <button
                                                         onclick="stopTimer('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                        class="w-full px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs transition-colors
-                                                   {{ $isMwsLocked ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                        class="btn btn-danger btn-sm w-100 {{ $isMwsLocked ? 'disabled opacity-50' : '' }}"
                                                         @if ($isMwsLocked) disabled @endif>
-                                                        <i class="fas fa-stop mr-1"></i> Stop
+                                                        <i class="fas fa-stop me-1"></i> Stop
                                                     </button>
                                                 @else
                                                     <button
                                                         onclick="startTimer('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                        class="w-full px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs transition-colors
-                                                   {{ $isMwsLocked || $planIncomplete ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                        class="btn btn-primary btn-sm w-100 {{ $isMwsLocked || $planIncomplete ? 'disabled opacity-50' : '' }}"
                                                         @if ($isMwsLocked) disabled title="MWS terkunci"
                                             @elseif($planIncomplete) disabled title="PLAN MAN dan PLAN HOURS harus diisi dulu." @endif>
-                                                        <i class="fas fa-play mr-1"></i> Start
+                                                        <i class="fas fa-play me-1"></i> Start
                                                     </button>
                                                 @endif
                                             @endif
@@ -1068,13 +760,12 @@
                                     </td>
 
                                     {{-- TECH --}}
-                                    <td class="col-tech align-top tech-cell">
+                                    <td class="col-tech align-top">
                                         @if ($isMechanic && $userInStep && !$techApproved)
-                                            <div class="flex items-center justify-center min-h-[40px]">
+                                            <div class="d-flex align-items-center justify-content-center" style="min-height: 40px;">
                                                 <button
                                                     onclick="approveStep('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                    class="px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium transition-colors
-                                                   {{ $isMwsLocked || $timerRunning || $planIncomplete ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                    class="btn btn-success btn-sm {{ $isMwsLocked || $timerRunning || $planIncomplete ? 'disabled opacity-50' : '' }}"
                                                     @if ($isMwsLocked) disabled title="MWS terkunci."
                                             @elseif($timerRunning) disabled title="Hentikan timer terlebih dahulu."
                                             @elseif($planIncomplete) disabled title="PLAN MAN dan PLAN HOURS harus diisi dulu." @endif>
@@ -1082,15 +773,15 @@
                                                 </button>
                                             </div>
                                         @else
-                                            <div class="flex flex-col items-center justify-center min-h-[40px] space-y-1">
-                                                <span class="text-sm font-semibold text-gray-900 text-center">
+                                            <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 40px; gap: 0.5rem;">
+                                                <span class="small fw-bold text-dark text-center">
                                                     {{ $techApproved ? 'Approved' : 'N/A' }}
                                                 </span>
                                                 @if ($techApproved)
                                                     @can('update', $mwsPart)
                                                         <button
                                                             onclick="cancelApproval('{{ $mwsPart->id }}', {{ $step->no }})"
-                                                            class="px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded text-xs transition-colors">
+                                                            class="btn btn-danger btn-sm">
                                                             Unapprove
                                                         </button>
                                                     @endcan
@@ -1295,144 +986,127 @@
             </div>
 
             {{-- ==================== SIGN SECTION ==================== --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="row">
 
                 {{-- Tanggal & Durasi --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Tanggal &amp; Durasi Pengerjaan</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-                            <input type="text" readonly
-                                value="{{ $mwsPart->start_date ? \Carbon\Carbon::parse($mwsPart->start_date)->format('d/m/Y') : '' }}"
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm">
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Tanggal &amp; Durasi Pengerjaan</h5>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Finish Date</label>
-                            <input type="text" readonly
-                                value="{{ $mwsPart->finish_date ? \Carbon\Carbon::parse($mwsPart->finish_date)->format('d/m/Y') : '' }}"
-                                placeholder="dd/mm/yyyy"
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-700 text-sm">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Durasi Pengerjaan</label>
-                            <p class="text-sm font-semibold text-gray-800" id="total-duration">
-                                {{ $mwsPart->total_duration ?? '-' }}
-                            </p>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="text" readonly value="{{ $mwsPart->start_date ? \Carbon\Carbon::parse($mwsPart->start_date)->format('d/m/Y') : '' }}" class="form-control">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Finish Date</label>
+                                <input type="text" readonly value="{{ $mwsPart->finish_date ? \Carbon\Carbon::parse($mwsPart->finish_date)->format('d/m/Y') : '' }}" placeholder="dd/mm/yyyy" class="form-control">
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label">Total Durasi Pengerjaan</label>
+                                <p class="fw-semibold" id="total-duration">{{ $mwsPart->total_duration ?? '-' }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Approved MWS --}}
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Approved Maintenance Work Sheet</h3>
-                    <div class="space-y-4">
-
-                        {{-- Prepared By --}}
-                        <div
-                            class="p-4 rounded-lg border transition-colors duration-300 {{ $mwsPart->preparedBy ? 'border-green-400 bg-green-50 shadow-inner' : 'border-gray-200 bg-gray-50' }}">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h4 class="font-semibold text-gray-800">Prepared By</h4>
-                                    @if ($mwsPart->preparedBy)
-                                        <div class="flex items-center mt-1">
-                                            <i class="fas fa-user-check text-green-600 mr-2"></i>
-                                            <p class="text-sm text-gray-700 font-medium">{{ $mwsPart->preparedBy }}</p>
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-1 ml-6">
-                                            {{ $mwsPart->preparedAt ? \Carbon\Carbon::parse($mwsPart->preparedAt)->format('d/m/Y H:i') : '' }}
-                                        </p>
-                                    @else
-                                        <p class="text-sm text-gray-500 italic mt-1">Menunggu Approved...</p>
-                                    @endif
-                                </div>
-                                @if (!$mwsPart->preparedBy && in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
-                                    <button onclick="signDocument('{{ $mwsPart->id }}', 'prepared')"
-                                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200">
-                                        <i class="fas fa-signature mr-1"></i> Sign
-                                    </button>
-                                @elseif($mwsPart->preparedBy)
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-check-circle text-2xl text-green-500"></i>
-                                        @if (in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
-                                            <button
-                                                onclick="cancelSignature('{{ $mwsPart->id }}', 'prepared', 'Anda yakin ingin membatalkan tanda tangan Prepared By?')"
-                                                class="px-3 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors">Batal</button>
-                                        @endif
-                                    </div>
-                                @endif
-                            </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Approved Maintenance Work Sheet</h5>
                         </div>
+                        <div class="card-body">
 
-                        {{-- Approved By --}}
-                        <div
-                            class="p-4 rounded-lg border transition-colors duration-300 {{ $mwsPart->approvedBy ? 'border-green-400 bg-green-50 shadow-inner' : 'border-gray-200 bg-gray-50' }}">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h4 class="font-semibold text-gray-800">Approved By</h4>
-                                    @if ($mwsPart->approvedBy)
-                                        <div class="flex items-center mt-1">
-                                            <i class="fas fa-user-check text-green-600 mr-2"></i>
-                                            <p class="text-sm text-gray-700 font-medium">{{ $mwsPart->approvedBy }}</p>
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-1 ml-6">
-                                            {{ $mwsPart->approvedAt ? \Carbon\Carbon::parse($mwsPart->approvedAt)->format('d/m/Y H:i') : '' }}
-                                        </p>
-                                    @else
-                                        <p class="text-sm text-gray-500 italic mt-1">Menunggu Approved...</p>
-                                    @endif
-                                </div>
-                                @if (!$mwsPart->approvedBy && in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
-                                    <button onclick="signDocument('{{ $mwsPart->id }}', 'approved')"
-                                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium shadow hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200">
-                                        <i class="fas fa-signature mr-1"></i> Sign
-                                    </button>
-                                @elseif($mwsPart->approvedBy)
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-check-circle text-2xl text-green-500"></i>
-                                        @if (in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
-                                            <button
-                                                onclick="cancelSignature('{{ $mwsPart->id }}', 'approved', 'Anda yakin ingin membatalkan tanda tangan Approved By?')"
-                                                class="px-3 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors">Batal</button>
+                            {{-- Prepared By --}}
+                            <div class="p-3 mb-3 rounded border {{ $mwsPart->preparedBy ? 'border-success bg-light-success' : 'border-light bg-light' }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-semibold mb-2">Prepared By</h6>
+                                        @if ($mwsPart->preparedBy)
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-user-check text-success me-2"></i>
+                                                <p class="mb-0 fw-medium small">{{ $mwsPart->preparedBy }}</p>
+                                            </div>
+                                            <small class="text-muted">{{ $mwsPart->preparedAt ? \Carbon\Carbon::parse($mwsPart->preparedAt)->format('d/m/Y H:i') : '' }}</small>
+                                        @else
+                                            <p class="mb-0 text-muted small">Menunggu Approved...</p>
                                         @endif
                                     </div>
-                                @endif
+                                    @if (!$mwsPart->preparedBy && in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
+                                        <button onclick="signDocument('{{ $mwsPart->id }}', 'prepared')" class="btn btn-sm btn-primary ms-2">
+                                            <i class="fas fa-signature me-1"></i> Sign
+                                        </button>
+                                    @elseif($mwsPart->preparedBy)
+                                        <div class="d-flex align-items-center ms-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                            @if (in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
+                                                <button onclick="cancelSignature('{{ $mwsPart->id }}', 'prepared', 'Anda yakin ingin membatalkan tanda tangan Prepared By?')" class="btn btn-link btn-sm text-danger ms-2">Batal</button>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
 
-                        {{-- Verified By --}}
-                        <div
-                            class="p-4 rounded-lg border transition-colors duration-300 {{ $mwsPart->verifiedBy ? 'border-green-400 bg-green-50 shadow-inner' : 'border-gray-200 bg-gray-50' }}">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h4 class="font-semibold text-gray-800">Verified By</h4>
-                                    @if ($mwsPart->verifiedBy)
-                                        <div class="flex items-center mt-1">
-                                            <i class="fas fa-user-check text-green-600 mr-2"></i>
-                                            <p class="text-sm text-gray-700 font-medium">{{ $mwsPart->verifiedBy }}</p>
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-1 ml-6">
-                                            {{ $mwsPart->verifiedAt ? \Carbon\Carbon::parse($mwsPart->verifiedAt)->format('d/m/Y H:i') : '' }}
-                                        </p>
-                                    @else
-                                        <p class="text-sm text-gray-500 italic mt-1">Menunggu Approved Quality...</p>
-                                    @endif
-                                </div>
-                                @if (!$mwsPart->verifiedBy && (auth()->user()->role ?? '') === 'quality2')
-                                    <button onclick="signDocument('{{ $mwsPart->id }}', 'verified')"
-                                        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-medium shadow hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200">
-                                        <i class="fas fa-signature mr-1"></i> Sign
-                                    </button>
-                                @elseif($mwsPart->verifiedBy)
-                                    <div class="flex items-center space-x-2">
-                                        <i class="fas fa-check-circle text-2xl text-green-500"></i>
-                                        @if (in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
-                                            <button
-                                                onclick="cancelSignature('{{ $mwsPart->id }}', 'verified', 'Anda yakin ingin membatalkan tanda tangan Verified By?')"
-                                                class="px-3 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600 transition-colors">Batal</button>
+                            {{-- Approved By --}}
+                            <div class="p-3 mb-3 rounded border {{ $mwsPart->approvedBy ? 'border-success bg-light-success' : 'border-light bg-light' }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-semibold mb-2">Approved By</h6>
+                                        @if ($mwsPart->approvedBy)
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-user-check text-success me-2"></i>
+                                                <p class="mb-0 fw-medium small">{{ $mwsPart->approvedBy }}</p>
+                                            </div>
+                                            <small class="text-muted">{{ $mwsPart->approvedAt ? \Carbon\Carbon::parse($mwsPart->approvedAt)->format('d/m/Y H:i') : '' }}</small>
+                                        @else
+                                            <p class="mb-0 text-muted small">Menunggu Approved...</p>
                                         @endif
                                     </div>
-                                @endif
+                                    @if (!$mwsPart->approvedBy && in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
+                                        <button onclick="signDocument('{{ $mwsPart->id }}', 'approved')" class="btn btn-sm btn-danger ms-2">
+                                            <i class="fas fa-signature me-1"></i> Sign
+                                        </button>
+                                    @elseif($mwsPart->approvedBy)
+                                        <div class="d-flex align-items-center ms-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                            @if (in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
+                                                <button onclick="cancelSignature('{{ $mwsPart->id }}', 'approved', 'Anda yakin ingin membatalkan tanda tangan Approved By?')" class="btn btn-link btn-sm text-danger ms-2">Batal</button>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Verified By --}}
+                            <div class="p-3 rounded border {{ $mwsPart->verifiedBy ? 'border-success bg-light-success' : 'border-light bg-light' }}">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-semibold mb-2">Verified By</h6>
+                                        @if ($mwsPart->verifiedBy)
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="fas fa-user-check text-success me-2"></i>
+                                                <p class="mb-0 fw-medium small">{{ $mwsPart->verifiedBy }}</p>
+                                            </div>
+                                            <small class="text-muted">{{ $mwsPart->verifiedAt ? \Carbon\Carbon::parse($mwsPart->verifiedAt)->format('d/m/Y H:i') : '' }}</small>
+                                        @else
+                                            <p class="mb-0 text-muted small">Menunggu Approved Quality...</p>
+                                        @endif
+                                    </div>
+                                    @if (!$mwsPart->verifiedBy && (auth()->user()->role ?? '') === 'quality2')
+                                        <button onclick="signDocument('{{ $mwsPart->id }}', 'verified')" class="btn btn-sm btn-info ms-2">
+                                            <i class="fas fa-signature me-1"></i> Sign
+                                        </button>
+                                    @elseif($mwsPart->verifiedBy)
+                                        <div class="d-flex align-items-center ms-2">
+                                            <i class="fas fa-check-circle text-success"></i>
+                                            @if (in_array(auth()->user()->role ?? '', ['admin', 'superadmin']))
+                                                <button onclick="cancelSignature('{{ $mwsPart->id }}', 'verified', 'Anda yakin ingin membatalkan tanda tangan Verified By?')" class="btn btn-link btn-sm text-danger ms-2">Batal</button>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1442,5 +1116,6 @@
     </div>{{-- end min-h-screen --}}
 @endsection
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/info_mws_logic.js') }}"></script>
 @endpush

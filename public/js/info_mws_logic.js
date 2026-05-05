@@ -56,34 +56,76 @@ async function apiFetch(url, method = "GET", body = null) {
  * @param {'success'|'error'|'info'} type
  */
 function showToast(message, type = "success") {
-    const el = document.getElementById("toast-notification");
-    const msg = document.getElementById("toast-message");
-    const icon = document.getElementById("toast-icon");
-    if (!el) return;
+    if (window.Swal) {
+        Swal.fire({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            icon: type,
+            title: message,
+        });
+        return;
+    }
 
-    const iconMap = {
-        success: "fas fa-check-circle text-xl mt-0.5",
-        error: "fas fa-times-circle text-xl mt-0.5",
-        info: "fas fa-info-circle text-xl mt-0.5",
-    };
-
-    el.className = type;
-    el.style.display = "block";
-    msg.textContent = message;
-    icon.className = iconMap[type] || iconMap.info;
-
-    clearTimeout(el._timer);
-    el._timer = setTimeout(() => dismissToast(), 4000);
+    const fallback = type === "error" ? "Error" : "Info";
+    window.alert(`${fallback}: ${message}`);
 }
 
 function dismissToast() {
-    const el = document.getElementById("toast-notification");
-    if (el) el.style.display = "none";
+    if (window.Swal) {
+        Swal.close();
+    }
 }
 
 function dismissStrippingNotification() {
     const el = document.getElementById("stripping-notification");
     if (el) el.style.display = "none";
+}
+
+async function confirmAction(text, title = "Konfirmasi") {
+    if (window.Swal) {
+        const result = await Swal.fire({
+            title,
+            text,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Ya",
+            cancelButtonText: "Batal",
+            reverseButtons: true,
+        });
+
+        return result.isConfirmed;
+    }
+
+    return window.confirm(text);
+}
+
+async function promptText(title, value = "", inputPlaceholder = "") {
+    if (window.Swal) {
+        const result = await Swal.fire({
+            title,
+            input: "text",
+            inputValue: value,
+            inputPlaceholder,
+            showCancelButton: true,
+            confirmButtonText: "Simpan",
+            cancelButtonText: "Batal",
+            inputValidator: (inputVal) => {
+                if (!inputVal || !inputVal.trim()) {
+                    return "Input tidak boleh kosong";
+                }
+                return null;
+            },
+        });
+
+        return result.isConfirmed ? result.value.trim() : null;
+    }
+
+    const text = window.prompt(title, value);
+    if (text === null) return null;
+    return text.trim();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -158,7 +200,7 @@ async function savePlan(mwsPartId, stepNo, field) {
 async function editStepDescription(mwsPartId, stepNo) {
     const el = document.getElementById(`step-desc-${stepNo}`);
     const current = el ? el.textContent.trim() : "";
-    const newDesc = prompt("Edit deskripsi step:", current);
+    const newDesc = await promptText("Edit deskripsi step", current, "Masukkan deskripsi step");
     if (newDesc === null || newDesc === current) return;
 
     try {
@@ -179,7 +221,7 @@ async function editStepDescription(mwsPartId, stepNo) {
 // ═══════════════════════════════════════════════════════════════
 
 async function addFirstStep(mwsPartId) {
-    const desc = prompt("Deskripsi step baru:");
+    const desc = await promptText("Deskripsi step baru", "", "Masukkan deskripsi step");
     if (!desc) return;
 
     try {
@@ -194,8 +236,10 @@ async function addFirstStep(mwsPartId) {
 }
 
 async function insertStepAfter(mwsPartId, stepNo) {
-    const desc = prompt(
-        "Deskripsi step baru (akan disisipkan setelah step ini):",
+    const desc = await promptText(
+        `Deskripsi step baru setelah step ${stepNo}`,
+        "",
+        "Masukkan deskripsi step",
     );
     if (!desc) return;
 
@@ -215,7 +259,7 @@ async function insertStepAfter(mwsPartId, stepNo) {
 }
 
 async function deleteStep(mwsPartId, stepNo) {
-    if (!confirm(`Hapus step no ${stepNo}?`)) return;
+    if (!(await confirmAction(`Hapus step no ${stepNo}?`))) return;
 
     try {
         await apiFetch(`/mws/${mwsPartId}/steps/${stepNo}`, "DELETE");
@@ -240,7 +284,7 @@ async function handleSmartDelete(mwsPartId) {
     if (!checked.length) return;
 
     const stepNos = checked.map((cb) => cb.dataset.stepNo);
-    if (!confirm(`Hapus ${stepNos.length} step terpilih?`)) return;
+    if (!(await confirmAction(`Hapus ${stepNos.length} step terpilih?`))) return;
 
     try {
         await apiFetch(`/mws/${mwsPartId}/steps/bulk-delete`, "DELETE", {
@@ -278,7 +322,7 @@ async function addDetail(mwsPartId, stepNo) {
 async function editDetail(mwsPartId, stepNo, detailIndex) {
     const el = document.getElementById(`detail-text-${stepNo}-${detailIndex}`);
     const current = el ? el.textContent.trim() : "";
-    const newText = prompt("Edit catatan:", current);
+    const newText = await promptText("Edit catatan", current, "Masukkan catatan");
     if (newText === null || newText === current) return;
 
     try {
@@ -295,7 +339,7 @@ async function editDetail(mwsPartId, stepNo, detailIndex) {
 }
 
 async function deleteDetail(mwsPartId, stepNo, detailIndex) {
-    if (!confirm("Hapus catatan ini?")) return;
+    if (!(await confirmAction("Hapus catatan ini?"))) return;
 
     try {
         await apiFetch(
@@ -374,7 +418,7 @@ async function addSubStep(mwsPartId, stepNo) {
 async function editSubStep(mwsPartId, stepNo, subStepId) {
     const el = document.getElementById(`substep-text-${subStepId}`);
     const current = el ? el.textContent.trim() : "";
-    const newDesc = prompt("Edit sub-step:", current);
+    const newDesc = await promptText("Edit sub-step", current, "Masukkan deskripsi sub-step");
     if (newDesc === null || newDesc === current) return;
 
     try {
@@ -391,7 +435,7 @@ async function editSubStep(mwsPartId, stepNo, subStepId) {
 }
 
 async function deleteSubStep(mwsPartId, stepNo, subStepId) {
-    if (!confirm("Hapus sub-step ini?")) return;
+    if (!(await confirmAction("Hapus sub-step ini?"))) return;
 
     try {
         await apiFetch(
@@ -410,6 +454,29 @@ async function deleteSubStep(mwsPartId, stepNo, subStepId) {
 // ═══════════════════════════════════════════════════════════════
 // CONSUMABLES
 // ═══════════════════════════════════════════════════════════════
+
+function toggleConsumableAdd(show) {
+    const triggerRow = document.getElementById("consumable-add-trigger");
+    const inputRow = document.getElementById("consumable-add-row");
+    if (!triggerRow || !inputRow) return;
+
+    if (show) {
+        triggerRow.classList.add("d-none");
+        inputRow.classList.remove("d-none");
+        document.getElementById("new-cons-name")?.focus();
+        return;
+    }
+
+    inputRow.classList.add("d-none");
+    triggerRow.classList.remove("d-none");
+
+    const nameInput = document.getElementById("new-cons-name");
+    const identInput = document.getElementById("new-cons-ident");
+    const qtyInput = document.getElementById("new-cons-qty");
+    if (nameInput) nameInput.value = "";
+    if (identInput) identInput.value = "";
+    if (qtyInput) qtyInput.value = "";
+}
 
 async function addConsumable(mwsPartId) {
     const name = document.getElementById("new-cons-name")?.value.trim();
@@ -431,34 +498,89 @@ async function addConsumable(mwsPartId) {
     }
 }
 
-function editConsumable(consumableId) {
-    // Ganti span → input untuk ketiga kolom sekaligus
+function setConsumableActionButtons(mwsPartId, consumableId, isEditing = false) {
+    const actionCell = document.getElementById(`consumable-actions-${consumableId}`);
+    if (!actionCell) return;
+
+    if (isEditing) {
+        actionCell.innerHTML = `
+            <button type="button" class="btn btn-success btn-sm me-1" onclick="saveConsumable('${mwsPartId}', ${consumableId})">Save</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelConsumableEdit('${mwsPartId}', ${consumableId})">Cancel</button>
+        `;
+        return;
+    }
+
+    actionCell.innerHTML = `
+        <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="editConsumable('${mwsPartId}', ${consumableId})">Edit</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteConsumable('${mwsPartId}', ${consumableId})">Hapus</button>
+    `;
+}
+
+function editConsumable(mwsPartId, consumableId) {
+    const row = document.getElementById(`consumable-row-${consumableId}`);
+    if (!row) return;
+
+    const nameEl = document.getElementById(`cons-name-${consumableId}`);
+    const identEl = document.getElementById(`cons-ident-${consumableId}`);
+    const qtyEl = document.getElementById(`cons-qty-${consumableId}`);
+    if (!nameEl || !identEl || !qtyEl) return;
+
+    row.dataset.originalName = nameEl.textContent.trim();
+    row.dataset.originalIdent = identEl.textContent.trim();
+    row.dataset.originalQty = qtyEl.textContent.trim();
+
     const fields = [
-        { key: "name", elId: `cons-name-${consumableId}` },
-        { key: "ident", elId: `cons-ident-${consumableId}` },
-        { key: "qty", elId: `cons-qty-${consumableId}` },
+        { key: "name", el: nameEl },
+        { key: "ident", el: identEl },
+        { key: "qty", el: qtyEl },
     ];
 
-    fields.forEach(({ key, elId }) => {
-        const span = document.getElementById(elId);
-        if (!span) return;
-
+    fields.forEach(({ key, el }) => {
         const input = document.createElement("input");
         input.type = "text";
-        input.value =
-            span.textContent.trim() === "-" ? "" : span.textContent.trim();
+        input.value = el.textContent.trim() === "-" ? "" : el.textContent.trim();
         input.id = `cons-${key}-input-${consumableId}`;
-        input.className =
-            "w-full border rounded px-1 py-0.5 text-sm focus:ring-1 focus:ring-blue-400";
-        span.replaceWith(input);
+        input.className = "form-control form-control-sm";
+        el.replaceWith(input);
     });
 
-    // Ganti tombol edit menjadi simpan
-    const editBtn = document.getElementById(`cons-edit-btn-${consumableId}`);
-    if (editBtn) {
-        editBtn.textContent = "Simpan";
-        editBtn.onclick = () => saveConsumable(partId, consumableId);
+    setConsumableActionButtons(mwsPartId, consumableId, true);
+}
+
+function cancelConsumableEdit(mwsPartId, consumableId) {
+    const row = document.getElementById(`consumable-row-${consumableId}`);
+    if (!row) return;
+
+    const originalName = row.dataset.originalName || "";
+    const originalIdent = row.dataset.originalIdent || "-";
+    const originalQty = row.dataset.originalQty || "AR";
+
+    const nameInput = document.getElementById(`cons-name-input-${consumableId}`);
+    const identInput = document.getElementById(`cons-ident-input-${consumableId}`);
+    const qtyInput = document.getElementById(`cons-qty-input-${consumableId}`);
+
+    if (nameInput) {
+        const span = document.createElement("span");
+        span.id = `cons-name-${consumableId}`;
+        span.textContent = originalName;
+        nameInput.replaceWith(span);
     }
+
+    if (identInput) {
+        const span = document.createElement("span");
+        span.id = `cons-ident-${consumableId}`;
+        span.textContent = originalIdent || "-";
+        identInput.replaceWith(span);
+    }
+
+    if (qtyInput) {
+        const span = document.createElement("span");
+        span.id = `cons-qty-${consumableId}`;
+        span.textContent = originalQty || "AR";
+        qtyInput.replaceWith(span);
+    }
+
+    setConsumableActionButtons(mwsPartId, consumableId, false);
 }
 
 async function saveConsumable(mwsPartId, consumableId) {
@@ -480,15 +602,48 @@ async function saveConsumable(mwsPartId, consumableId) {
             identification: ident,
             quantity: qty || "AR",
         });
+
+        const nameInput = document.getElementById(`cons-name-input-${consumableId}`);
+        const identInput = document.getElementById(`cons-ident-input-${consumableId}`);
+        const qtyInput = document.getElementById(`cons-qty-input-${consumableId}`);
+
+        if (nameInput) {
+            const span = document.createElement("span");
+            span.id = `cons-name-${consumableId}`;
+            span.textContent = name;
+            nameInput.replaceWith(span);
+        }
+
+        if (identInput) {
+            const span = document.createElement("span");
+            span.id = `cons-ident-${consumableId}`;
+            span.textContent = ident || "-";
+            identInput.replaceWith(span);
+        }
+
+        if (qtyInput) {
+            const span = document.createElement("span");
+            span.id = `cons-qty-${consumableId}`;
+            span.textContent = qty || "AR";
+            qtyInput.replaceWith(span);
+        }
+
+        const row = document.getElementById(`consumable-row-${consumableId}`);
+        if (row) {
+            row.dataset.originalName = name;
+            row.dataset.originalIdent = ident || "-";
+            row.dataset.originalQty = qty || "AR";
+        }
+
+        setConsumableActionButtons(mwsPartId, consumableId, false);
         showToast("Consumable disimpan!");
-        location.reload();
     } catch (err) {
         showToast(err.message || "Gagal menyimpan consumable.", "error");
     }
 }
 
 async function deleteConsumable(mwsPartId, consumableId) {
-    if (!confirm("Hapus consumable ini?")) return;
+    if (!(await confirmAction("Hapus consumable ini?"))) return;
 
     try {
         await apiFetch(
@@ -537,7 +692,7 @@ async function assignMechanicToStep(mwsPartId, stepNo) {
 }
 
 async function removeMechanicFromStep(mwsPartId, stepNo, nik) {
-    if (!confirm("Hapus mekanik dari step ini?")) return;
+    if (!(await confirmAction("Hapus mekanik dari step ini?"))) return;
 
     try {
         await apiFetch(
@@ -613,7 +768,7 @@ async function approveStep(mwsPartId, stepNo) {
 }
 
 async function cancelApproval(mwsPartId, stepNo) {
-    if (!confirm("Batalkan approval step ini?")) return;
+    if (!(await confirmAction("Batalkan approval step ini?"))) return;
 
     try {
         await apiFetch(`/mws/${mwsPartId}/steps/${stepNo}/unapprove`, "POST");
@@ -639,7 +794,7 @@ async function finishStep(mwsPartId, stepNo) {
 }
 
 async function cancelFinishStep(mwsPartId, stepNo) {
-    if (!confirm("Batalkan penyelesaian step ini?")) return;
+    if (!(await confirmAction("Batalkan penyelesaian step ini?"))) return;
 
     try {
         await apiFetch(`/mws/${mwsPartId}/steps/${stepNo}/unfinish`, "POST");
@@ -693,7 +848,7 @@ async function signDocument(mwsPartId, type) {
         approved: "Approved By",
         verified: "Verified By",
     };
-    if (!confirm(`Anda yakin ingin sign sebagai ${labels[type]}?`)) return;
+    if (!(await confirmAction(`Anda yakin ingin sign sebagai ${labels[type]}?`))) return;
 
     try {
         await apiFetch(`/mws/${mwsPartId}/sign`, "POST", { type });
@@ -705,7 +860,7 @@ async function signDocument(mwsPartId, type) {
 }
 
 async function cancelSignature(mwsPartId, type, confirmMsg) {
-    if (!confirm(confirmMsg)) return;
+    if (!(await confirmAction(confirmMsg))) return;
 
     try {
         await apiFetch(`/mws/${mwsPartId}/cancel-sign`, "POST", { type });
@@ -753,7 +908,7 @@ async function uploadMwsAttachment(mwsPartId) {
 }
 
 async function deleteMwsAttachment(mwsPartId, publicId) {
-    if (!confirm("Hapus lampiran ini?")) return;
+    if (!(await confirmAction("Hapus lampiran ini?"))) return;
 
     try {
         await apiFetch(`/mws/${mwsPartId}/attachments/${publicId}`, "DELETE");
@@ -802,7 +957,7 @@ async function uploadStepAttachment(mwsPartId, stepNo) {
 }
 
 async function deleteStepAttachment(mwsPartId, stepNo, publicId) {
-    if (!confirm("Hapus lampiran ini?")) return;
+    if (!(await confirmAction("Hapus lampiran ini?"))) return;
 
     try {
         await apiFetch(
@@ -821,7 +976,7 @@ async function deleteStepAttachment(mwsPartId, stepNo, publicId) {
 // ═══════════════════════════════════════════════════════════════
 
 async function confirmDuplicateMws(mwsPartId) {
-    if (!confirm("Yakin ingin menduplikasi MWS ini?")) return;
+    if (!(await confirmAction("Yakin ingin menduplikasi MWS ini?"))) return;
 
     try {
         const data = await apiFetch(`/mws/${mwsPartId}/duplicate`, "POST");

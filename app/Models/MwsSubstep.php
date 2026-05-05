@@ -3,8 +3,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class MwsSubStep extends Model
+class MwsSubstep extends Model
 {
+    protected $table = 'mws_sub_steps';
+
     protected $fillable = [
         'mws_step_id', 'label', 'description', 'order'
     ];

@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Carbon\Carbon;
 
-class MwsService
+class MwsServices
 {
     public static function calculateProgress($mwsPart)
     {
