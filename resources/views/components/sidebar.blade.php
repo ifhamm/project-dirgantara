@@ -54,7 +54,7 @@
 
 <style>
     :root {
-        --sidebar-width: 280px;
+        --sidebar-width: 255px;
         --sidebar-bg-dark: #0f2844;
         --sidebar-bg-light: #1a3a52;
         --sidebar-accent: #4299e1;
