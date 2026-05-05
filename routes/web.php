@@ -15,6 +15,9 @@ Route::get('/dashboard', function () {
 
 Route::prefix('mws')->middleware(['auth'])->group(function () {
 
+    // ── Tracking List ─────────────────────────────────────
+    Route::get('/tracking', [MwsPartController::class, 'tracking'])->name('mws.tracking');
+
     // ── Route statis (harus di atas wildcard) ─────────────
     Route::get('/create', [MwsPartController::class, 'create'])->name('mws.create');
 

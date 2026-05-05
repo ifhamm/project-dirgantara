@@ -79,7 +79,7 @@
         <nav class="navbar navbar-light bg-white border-bottom sticky-top">
             <div class="container-fluid">
                 <div class="d-flex align-items-center w-100">
-                    <a href="{{ route('dashboard') }}" class="btn btn-light btn-sm me-3">
+                    <a href="{{ route('mws.tracking') }}" class="btn btn-light btn-sm me-3">
                         <i class="fas fa-arrow-left"></i>
                     </a>
                     <div>

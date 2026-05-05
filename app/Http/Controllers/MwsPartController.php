@@ -24,6 +24,12 @@ class MwsPartController extends Controller
         return response()->json($this->parts->index());
     }
 
+    public function tracking()
+    {
+        $mwsParts = MwsPart::orderBy('created_at', 'desc')->paginate(20);
+        return view('mws.tracking', compact('mwsParts'));
+    }
+
     public function create()
     {
         return view('mws.create');

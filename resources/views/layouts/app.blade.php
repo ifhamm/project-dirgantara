@@ -11,26 +11,56 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        <!-- FontAwesome -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .page-wrapper {
+                display: flex;
+                min-height: 100vh;
+            }
+            .page-content {
+                flex: 1;
+                margin-left: 280px;
+                background-color: #f5f7fa;
+            }
+            @media (max-width: 768px) {
+                .page-content {
+                    margin-left: 0;
+                }
+            }
+        </style>
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
-            @include('layouts.navigation')
+        <div class="page-wrapper">
+            {{-- Sidebar --}}
+            @include('components.sidebar')
 
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
+            {{-- Main Content --}}
+            <div class="page-content">
+                @include('layouts.navigation')
 
-            <!-- Page Content -->
-            <main>
-                @yield('content')
-            </main>
+                <!-- Page Heading -->
+                @isset($header)
+                    <header class="bg-white shadow-sm">
+                        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                            {{ $header }}
+                        </div>
+                    </header>
+                @endisset
+
+                <!-- Page Content -->
+                <main class="py-4">
+                    @yield('content')
+                </main>
+            </div>
         </div>
         @stack('scripts')
     </body>
