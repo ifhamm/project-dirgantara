@@ -411,6 +411,29 @@ async function deleteSubStep(mwsPartId, stepNo, subStepId) {
 // CONSUMABLES
 // ═══════════════════════════════════════════════════════════════
 
+function toggleConsumableAdd(show) {
+    const triggerRow = document.getElementById("consumable-add-trigger");
+    const inputRow = document.getElementById("consumable-add-row");
+    if (!triggerRow || !inputRow) return;
+
+    if (show) {
+        triggerRow.classList.add("d-none");
+        inputRow.classList.remove("d-none");
+        document.getElementById("new-cons-name")?.focus();
+        return;
+    }
+
+    inputRow.classList.add("d-none");
+    triggerRow.classList.remove("d-none");
+
+    const nameInput = document.getElementById("new-cons-name");
+    const identInput = document.getElementById("new-cons-ident");
+    const qtyInput = document.getElementById("new-cons-qty");
+    if (nameInput) nameInput.value = "";
+    if (identInput) identInput.value = "";
+    if (qtyInput) qtyInput.value = "";
+}
+
 async function addConsumable(mwsPartId) {
     const name = document.getElementById("new-cons-name")?.value.trim();
     const ident = document.getElementById("new-cons-ident")?.value.trim();
@@ -431,34 +454,89 @@ async function addConsumable(mwsPartId) {
     }
 }
 
-function editConsumable(consumableId) {
-    // Ganti span → input untuk ketiga kolom sekaligus
+function setConsumableActionButtons(mwsPartId, consumableId, isEditing = false) {
+    const actionCell = document.getElementById(`consumable-actions-${consumableId}`);
+    if (!actionCell) return;
+
+    if (isEditing) {
+        actionCell.innerHTML = `
+            <button type="button" class="btn btn-success btn-sm me-1" onclick="saveConsumable('${mwsPartId}', ${consumableId})">Save</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelConsumableEdit('${mwsPartId}', ${consumableId})">Cancel</button>
+        `;
+        return;
+    }
+
+    actionCell.innerHTML = `
+        <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="editConsumable('${mwsPartId}', ${consumableId})">Edit</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" onclick="deleteConsumable('${mwsPartId}', ${consumableId})">Hapus</button>
+    `;
+}
+
+function editConsumable(mwsPartId, consumableId) {
+    const row = document.getElementById(`consumable-row-${consumableId}`);
+    if (!row) return;
+
+    const nameEl = document.getElementById(`cons-name-${consumableId}`);
+    const identEl = document.getElementById(`cons-ident-${consumableId}`);
+    const qtyEl = document.getElementById(`cons-qty-${consumableId}`);
+    if (!nameEl || !identEl || !qtyEl) return;
+
+    row.dataset.originalName = nameEl.textContent.trim();
+    row.dataset.originalIdent = identEl.textContent.trim();
+    row.dataset.originalQty = qtyEl.textContent.trim();
+
     const fields = [
-        { key: "name", elId: `cons-name-${consumableId}` },
-        { key: "ident", elId: `cons-ident-${consumableId}` },
-        { key: "qty", elId: `cons-qty-${consumableId}` },
+        { key: "name", el: nameEl },
+        { key: "ident", el: identEl },
+        { key: "qty", el: qtyEl },
     ];
 
-    fields.forEach(({ key, elId }) => {
-        const span = document.getElementById(elId);
-        if (!span) return;
-
+    fields.forEach(({ key, el }) => {
         const input = document.createElement("input");
         input.type = "text";
-        input.value =
-            span.textContent.trim() === "-" ? "" : span.textContent.trim();
+        input.value = el.textContent.trim() === "-" ? "" : el.textContent.trim();
         input.id = `cons-${key}-input-${consumableId}`;
-        input.className =
-            "w-full border rounded px-1 py-0.5 text-sm focus:ring-1 focus:ring-blue-400";
-        span.replaceWith(input);
+        input.className = "form-control form-control-sm";
+        el.replaceWith(input);
     });
 
-    // Ganti tombol edit menjadi simpan
-    const editBtn = document.getElementById(`cons-edit-btn-${consumableId}`);
-    if (editBtn) {
-        editBtn.textContent = "Simpan";
-        editBtn.onclick = () => saveConsumable(partId, consumableId);
+    setConsumableActionButtons(mwsPartId, consumableId, true);
+}
+
+function cancelConsumableEdit(mwsPartId, consumableId) {
+    const row = document.getElementById(`consumable-row-${consumableId}`);
+    if (!row) return;
+
+    const originalName = row.dataset.originalName || "";
+    const originalIdent = row.dataset.originalIdent || "-";
+    const originalQty = row.dataset.originalQty || "AR";
+
+    const nameInput = document.getElementById(`cons-name-input-${consumableId}`);
+    const identInput = document.getElementById(`cons-ident-input-${consumableId}`);
+    const qtyInput = document.getElementById(`cons-qty-input-${consumableId}`);
+
+    if (nameInput) {
+        const span = document.createElement("span");
+        span.id = `cons-name-${consumableId}`;
+        span.textContent = originalName;
+        nameInput.replaceWith(span);
     }
+
+    if (identInput) {
+        const span = document.createElement("span");
+        span.id = `cons-ident-${consumableId}`;
+        span.textContent = originalIdent || "-";
+        identInput.replaceWith(span);
+    }
+
+    if (qtyInput) {
+        const span = document.createElement("span");
+        span.id = `cons-qty-${consumableId}`;
+        span.textContent = originalQty || "AR";
+        qtyInput.replaceWith(span);
+    }
+
+    setConsumableActionButtons(mwsPartId, consumableId, false);
 }
 
 async function saveConsumable(mwsPartId, consumableId) {
@@ -480,8 +558,41 @@ async function saveConsumable(mwsPartId, consumableId) {
             identification: ident,
             quantity: qty || "AR",
         });
+
+        const nameInput = document.getElementById(`cons-name-input-${consumableId}`);
+        const identInput = document.getElementById(`cons-ident-input-${consumableId}`);
+        const qtyInput = document.getElementById(`cons-qty-input-${consumableId}`);
+
+        if (nameInput) {
+            const span = document.createElement("span");
+            span.id = `cons-name-${consumableId}`;
+            span.textContent = name;
+            nameInput.replaceWith(span);
+        }
+
+        if (identInput) {
+            const span = document.createElement("span");
+            span.id = `cons-ident-${consumableId}`;
+            span.textContent = ident || "-";
+            identInput.replaceWith(span);
+        }
+
+        if (qtyInput) {
+            const span = document.createElement("span");
+            span.id = `cons-qty-${consumableId}`;
+            span.textContent = qty || "AR";
+            qtyInput.replaceWith(span);
+        }
+
+        const row = document.getElementById(`consumable-row-${consumableId}`);
+        if (row) {
+            row.dataset.originalName = name;
+            row.dataset.originalIdent = ident || "-";
+            row.dataset.originalQty = qty || "AR";
+        }
+
+        setConsumableActionButtons(mwsPartId, consumableId, false);
         showToast("Consumable disimpan!");
-        location.reload();
     } catch (err) {
         showToast(err.message || "Gagal menyimpan consumable.", "error");
     }

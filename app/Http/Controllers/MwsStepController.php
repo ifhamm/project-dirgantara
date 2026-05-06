@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MwsStep;
-use App\Services\MwsService;
+use App\Services\MwsServices;
 use Illuminate\Http\Request;
 
 class MwsStepController extends Controller
@@ -79,10 +79,10 @@ class MwsStepController extends Controller
 
         $mwsPart = $step->Part;
 
-        MwsService::updateStatus($mwsPart);
-        MwsService::calculateMenPowers($mwsPart);
-        MwsService::updateSchedule($mwsPart);
-        MwsService::updateDuration($mwsPart);
+        MwsServices::updateStatus($mwsPart);
+        MwsServices::calculateMenPowers($mwsPart);
+        MwsServices::updateSchedule($mwsPart);
+        MwsServices::updateDuration($mwsPart);
 
         return response()->json([
             'message' => 'Step completed'

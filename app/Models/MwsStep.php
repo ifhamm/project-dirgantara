@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\MwsSubstep;
 
 class MwsStep extends Model
 {
@@ -76,24 +78,20 @@ public function getHoursAttribute($value)
     public function getMechanicsAttribute()
     {
         $man = $this->man ?? [];
-        $mechanics = [];
+        $users = User::query()
+            ->whereIn('nik', $man)
+            ->select('nik', 'name')
+            ->get()
+            ->keyBy('nik');
 
-        foreach ($man as $nik) {
-            $user = \App\Models\User::where('nik', $nik)->first();
-            if ($user) {
-                $mechanics[] = (object)[
-                    'nik' => $user->nik,
-                    'name' => $user->name
-                ];
-            } else {
-                $mechanics[] = (object)[
-                    'nik' => $nik,
-                    'name' => $nik
-                ];
-            }
-        }
+        return collect($man)->map(function ($nik) use ($users) {
+            $user = $users->get($nik);
 
-        return collect($mechanics);
+            return (object) [
+                'nik' => $user?->nik ?? $nik,
+                'name' => $user?->name ?? $nik,
+            ];
+        });
     }
 
     public function part()
@@ -103,6 +101,6 @@ public function getHoursAttribute($value)
 
     public function subSteps()
     {
-        return $this->hasMany(MwsSubStep::class, 'mws_step_id')->orderBy('order');
+        return $this->hasMany(MwsSubstep::class, 'mws_step_id')->orderBy('order');
     }
 }
