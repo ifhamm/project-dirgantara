@@ -22,6 +22,12 @@
             <span class="nav-label">Dashboard</span>
         </a>
 
+        {{-- Projects --}}
+        <a href="{{ route('projects.index') }}" class="nav-item {{ request()->routeIs('projects.*') ? 'active' : '' }}">
+            <i class="fas fa-folder-open nav-icon"></i>
+            <span class="nav-label">Projects</span>
+        </a>
+
         {{-- Tracking List --}}
         <a href="{{ route('mws.tracking') }}" class="nav-item {{ request()->routeIs('mws.tracking') ? 'active' : '' }}">
             <i class="fas fa-list-check nav-icon"></i>

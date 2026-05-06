@@ -3,12 +3,35 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MwsPartController;
 use App\Http\Controllers\MwsWorkflowController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\Import\GanttImportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
+// ══════════════════════════════════════════════════════════════
+// PROJECT ROUTES
+// ══════════════════════════════════════════════════════════════
+Route::prefix('projects')->middleware(['auth'])->group(function () {
+    Route::get('/', [ProjectController::class, 'index'])->name('projects.index');
+    Route::get('/create', [ProjectController::class, 'create'])->name('projects.create');
+    Route::post('/', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/import', [GanttImportController::class, 'create'])->name('projects.import.create');
+    Route::post('/import', [GanttImportController::class, 'store'])->name('projects.import');
+
+    Route::get('/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::get('/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
+    Route::put('/{project}', [ProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+});
+
+
+// ══════════════════════════════════════════════════════════════
+// MWS ROUTES
+// ══════════════════════════════════════════════════════════════
 Route::prefix('mws')->middleware(['auth'])->group(function () {
 
     // ── Tracking List ─────────────────────────────────────

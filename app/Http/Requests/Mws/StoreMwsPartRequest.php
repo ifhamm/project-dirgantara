@@ -18,12 +18,12 @@ class StoreMwsPartRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'job_type' => ['required', 'string', 'max:100'],
             'customer_name' => ['required', 'string', 'max:255'],
-            'part_number' => ['required', 'string', 'max:255'],
-            'serial_number' => ['required', 'string', 'max:255'],
+            'part_number' => ['nullable', 'string', 'max:255'],
+            'serial_number' => ['nullable', 'string', 'max:255'],
             'shop_area' => ['required', 'string', 'max:100'],
-            'wbs_no' => ['required', 'string', 'max:255'],
-            'ref' => ['required', 'string', 'max:255'],
-            'worksheet_no' => ['required', 'string', 'max:255'],
+            'wbs_no' => ['nullable', 'string', 'max:255'],
+            'ref' => ['nullable', 'string', 'max:255'],
+            'worksheet_no' => ['nullable', 'string', 'max:255'],
             
             // Optional fields
             'ref_logistic_ppc' => ['nullable', 'string', 'max:255'],
