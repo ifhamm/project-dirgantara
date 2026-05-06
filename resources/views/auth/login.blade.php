@@ -26,7 +26,7 @@
         <div class="tab-content" id="loginTabContent">
             <!-- Superadmin Login -->
             <div class="tab-pane fade show active" id="superadmin" role="tabpanel" aria-labelledby="superadmin-tab">
-                @if (session('error') && old('login_type') === 'superadmin')
+                @if (session('error') && old('login_type') === ['superadmin','admin'])
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -58,18 +58,18 @@
             </div>
             <!-- User Login -->
             <div class="tab-pane fade" id="user" role="tabpanel" aria-labelledby="user-tab">
-                @if (session('error') && old('login_type') === 'user')
+                @if (session('error') && old('login_type') === ['mechanic', 'quality1', 'quality2', 'customer'])
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
                 @endif
-                <form action="{{ route('login') }}" method="POST" id="userForm">
+                <form action="{{ route('userAuth') }}" method="POST" id="userForm">
                     @csrf
                     <input type="hidden" name="login_type" value="user">
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control @error('nik') is-invalid @enderror" id="nik"
-                            name="nik" placeholder="NIK" value="{{ old('nik') }}" required minlength="16" maxlength="16">
+                            name="nik" placeholder="NIK" value="{{ old('nik') }}" required minlength="4" maxlength="16">
                         <label for="nik"><i class="bi bi-person-badge me-2"></i>NIK</label>
                         @error('nik')
                             <div class="invalid-feedback">{{ $message }}</div>

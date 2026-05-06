@@ -29,10 +29,12 @@
         </a>
 
         {{-- Kelola Pengguna --}}
+        @can('is-management')
         <a href="#" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
             <i class="fas fa-users nav-icon"></i>
             <span class="nav-label">Kelola Pengguna</span>
         </a>
+        @endcan
     </nav>
 
     {{-- Logout --}}
@@ -299,7 +301,7 @@
 
         // Load sidebar state from localStorage
         const sidebarState = localStorage.getItem('sidebarState');
-        
+
         if (isMobile) {
             // Mobile: default to closed
             if (sidebarState !== 'open') {
