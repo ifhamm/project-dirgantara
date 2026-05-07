@@ -1,6 +1,6 @@
 @php
     if (!isset($isMwsLocked)) {
-        $isMwsLocked = !($mwsPart->preparedBy && $mwsPart->approvedBy);
+        $isMwsLocked = !($mwsPart->prepared_by && $mwsPart->approved_by);
     }
 @endphp
 @extends('layouts.app')
