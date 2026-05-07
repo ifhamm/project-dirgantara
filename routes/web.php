@@ -132,3 +132,5 @@ Route::prefix('mws')->middleware(['auth'])->group(function () {
         Route::delete('/{mwsPartId}/consumables/{consumableId}', [MwsWorkflowController::class, 'destroyConsumable'])->name('mws.consumables.destroy');
     });
 });
+
+require __DIR__ . '/auth.php';
