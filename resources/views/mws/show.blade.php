@@ -1,6 +1,6 @@
 @php
     if (!isset($isMwsLocked)) {
-        $isMwsLocked = !($mwsPart->preparedBy && $mwsPart->approvedBy);
+        $isMwsLocked = !($mwsPart->prepared_by && $mwsPart->approved_by);
     }
 @endphp
 @extends('layouts.app')
@@ -13,18 +13,18 @@
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .7; } }
         @keyframes subtle-pulse { 0%, 100% { background-color: #f8d7da; } 50% { background-color: #f5c2c7; } }
-        
+
         /* Notifications */
         #stripping-notification { position: fixed; top: 5rem; right: 1rem; padding: 1rem; border-radius: 0.5rem; color: white; z-index: 50; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1); min-width: 300px; max-width: 400px; }
         #stripping-notification.warning { background-color: #ffc107; }
         #stripping-notification.critical { background-color: #dc3545; animation: pulse 2s infinite; }
         #stripping-notification.safe { background-color: #28a745; }
-        
+
         #toast-notification { position: fixed; top: 1rem; right: 1rem; padding: 1rem; border-radius: 0.5rem; color: white; z-index: 1050; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, .1); min-width: 320px; max-width: 400px; animation: slideIn .3s ease-out; display: none; }
         #toast-notification.success { background-color: #28a745; }
         #toast-notification.error { background-color: #dc3545; }
         #toast-notification.info { background-color: #0dcaf0; }
-        
+
         /* Stripping styles */
         .stripping-progress-bar { width: 100%; height: 8px; background: rgba(255, 255, 255, .3); border-radius: 4px; margin: .5rem 0; overflow: hidden; }
         .stripping-progress-fill { height: 100%; background: white; border-radius: 4px; transition: width .3s ease; }
@@ -1091,7 +1091,7 @@
                                             </div>
                                             <small class="text-muted">{{ $mwsPart->verifiedAt ? \Carbon\Carbon::parse($mwsPart->verifiedAt)->format('d/m/Y H:i') : '' }}</small>
                                         @else
-                                            <p class="mb-0 text-muted small">Menunggu Approved Quality...</p>
+                                            <p class="mb-0 text-muted small">Menunggu Verified Quality...</p>
                                         @endif
                                     </div>
                                     @if (!$mwsPart->verifiedBy && (auth()->user()->role ?? '') === 'quality2')
@@ -1116,6 +1116,5 @@
     </div>{{-- end min-h-screen --}}
 @endsection
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/info_mws_logic.js') }}"></script>
 @endpush

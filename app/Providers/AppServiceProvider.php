@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\MwsPart;
+use App\Models\User;
 use App\Policies\MwsPartPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -23,5 +24,26 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::policy(MwsPart::class, MwsPartPolicy::class);
+
+        Gate::define('is-management', function (User $user) {
+            return in_array($user->role, ['superadmin', 'admin']);
+        });
+
+        Gate::define('quality-inspector', function (User $user) {
+            return $user->role === 'quality1';
+        });
+
+        Gate::define('quality-cdvr', function (User $user) {
+            return $user->role === 'quality2';
+        });
+
+        Gate::define('mechanic', function (User $user) {
+            return $user->role === 'mechanic';
+        });
+
+        Gate::define('customer', function (User $user) {
+            return $user->role === 'customer';
+        });
+
     }
 }

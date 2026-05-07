@@ -110,7 +110,7 @@ async function saveMwsInfo(e) {
     const data = Object.fromEntries(new FormData(form));
 
     try {
-        await apiFetch(`/mws/${partId}`, "PUT", data);
+        await apiFetch(`/mws/${partId()}`, "PUT", data);
         showToast("MWS Info berhasil disimpan!");
         location.reload();
     } catch (err) {
@@ -851,7 +851,7 @@ async function uploadMwsAttachment(mwsPartId) {
     try {
         const res = await fetch(`/mws/${mwsPartId}/attachments`, {
             method: "POST",
-            headers: { "X-CSRF-TOKEN": csrfToken },
+            headers: { "X-CSRF-TOKEN": csrfToken() },
             body: formData,
         });
         const data = await res.json();
@@ -899,7 +899,7 @@ async function uploadStepAttachment(mwsPartId, stepNo) {
             `/mws/${mwsPartId}/steps/${stepNo}/attachments`,
             {
                 method: "POST",
-                headers: { "X-CSRF-TOKEN": csrfToken },
+                headers: { "X-CSRF-TOKEN": csrfToken() },
                 body: formData,
             },
         );

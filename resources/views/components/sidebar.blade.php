@@ -35,10 +35,12 @@
         </a>
 
         {{-- Kelola Pengguna --}}
-        <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
-            <i class="fas fa-users nav-icon"></i>
-            <span class="nav-label">Kelola Pengguna</span>
-        </a>
+        @can('is-management')
+            <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                <i class="fas fa-users nav-icon"></i>
+                <span class="nav-label">Kelola Pengguna</span>
+            </a>
+        @endcan
     </nav>
 
     {{-- Logout --}}
