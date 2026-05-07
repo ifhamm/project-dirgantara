@@ -14,11 +14,11 @@
             <p class="text-muted small mb-0">Daftar semua project maintenance yang sedang berjalan</p>
         </div>
 
-        @if(in_array(auth()->user()->role, ['admin', 'superadmin']))
+        @can('is-management')
         <a href="{{ route('projects.create') }}" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Buat Project
         </a>
-        @endif
+        @endcan
     </div>
 
     {{-- Flash message --}}
@@ -43,11 +43,11 @@
             <i class="fas fa-folder-open fa-4x text-muted mb-4 d-block opacity-25"></i>
             <h5 class="text-muted fw-semibold mb-2">Belum ada project</h5>
             <p class="text-muted small mb-4">Project yang dibuat atau diimport akan muncul di sini.</p>
-            @if(in_array(auth()->user()->role, ['admin', 'superadmin']))
+            @can('is-management')
                 <a href="{{ route('projects.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>Buat Project Pertama
                 </a>
-            @endif
+            @endcan
         </div>
 
     {{-- ══════════════════════════════════════════════════════
