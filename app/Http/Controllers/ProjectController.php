@@ -32,7 +32,7 @@ class ProjectController extends Controller
         $project = $this->projectService->store($request->validated());
 
         return redirect()
-            ->route('project.show', $project)
+            ->route('projects.show', $project)
             ->with('success', "Project \"{$project->aircraft_reg}\" berhasil dibuat.");
     }
 
@@ -40,12 +40,12 @@ class ProjectController extends Controller
     {
         $project = $this->projectService->show($project);
 
-        return view('project.show', compact('project'));
+        return view('projects.show', compact('project'));
     }
 
     public function edit(Project $project): View
     {
-        return view('project.edit', compact('project'));
+        return view('projects.edit', compact('project'));
     }
 
     public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
@@ -53,7 +53,7 @@ class ProjectController extends Controller
         $this->projectService->update($project, $request->validated());
 
         return redirect()
-            ->route('project.show', $project)
+            ->route('projects.show', $project)
             ->with('success', 'Project berhasil diperbarui.');
     }
 
@@ -64,7 +64,7 @@ class ProjectController extends Controller
         $this->projectService->destroy($project);
 
         return redirect()
-            ->route('project.index')
+            ->route('projects.index')
             ->with('success', "Project \"{$reg}\" berhasil dihapus.");
     }
 }
