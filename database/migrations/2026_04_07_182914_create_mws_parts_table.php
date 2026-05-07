@@ -83,7 +83,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('verifiedBy')->nullable();
             $table->timestamp('verifiedAt')->nullable();
-            $table->string('status_s_us')->nullable();
+            $table->string('status_s_us_')->nullable();
         });
     }
 

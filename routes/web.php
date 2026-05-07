@@ -5,6 +5,7 @@ use App\Http\Controllers\MwsPartController;
 use App\Http\Controllers\MwsWorkflowController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\Import\GanttImportController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -148,6 +149,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+// ── Manage Akun ───────────────────────────────────────────
+Route::prefix('users')->middleware(['auth'])->group(function () {
+    Route::get('/', [UserController::class, 'index'])->name('users.index');
+    Route::post('/', [UserController::class, 'store'])->name('users.store');
+    Route::get('/create', [UserController::class, 'create'])->name('users.create');
+    Route::get('/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::put('/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+    Route::get('/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
 });
 
 require __DIR__ . '/auth.php';

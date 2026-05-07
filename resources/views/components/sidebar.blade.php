@@ -35,7 +35,7 @@
         </a>
 
         {{-- Kelola Pengguna --}}
-        <a href="#" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+        <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
             <i class="fas fa-users nav-icon"></i>
             <span class="nav-label">Kelola Pengguna</span>
         </a>
