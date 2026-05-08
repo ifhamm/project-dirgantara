@@ -54,130 +54,78 @@ Route::prefix('projects')->middleware(['auth'])->group(function () {
 // ══════════════════════════════════════════════════════════════
 Route::prefix('mws')->middleware(['auth'])->group(function () {
 
-    // ── Tracking List ─────────────────────────────────────
+    // ── Tracking List (Semua Role Bisa) ─────────────────────────────────────
     Route::get('/tracking', [MwsPartController::class, 'tracking'])->name('mws.tracking');
-    Route::get('/{id}', [MwsPartController::class, 'show'])->name('mws.show');
+    // WAJIB pakai whereNumber agar tidak membajak /create
+    Route::get('/{id}', [MwsPartController::class, 'show'])->whereNumber('id')->name('mws.show');
 
-    // ── [Manage] Only Superadmin and Admin can Access  ─────────────────────────────────────
-    Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
-
-        // ── MwsPart CRUD ──────────────────────────────────────
+    // ── [Manage] Superadmin & Admin Saja ─────────────────────────────────────
+    Route::middleware(['auth', 'role:superadmin,admin'])->group(function () {
+        // MwsPart CRUD Induk
         Route::get('/create', [MwsPartController::class, 'create'])->name('mws.create');
         Route::post('/', [MwsPartController::class, 'store'])->name('mws.store');
-        Route::put('/{id}', [MwsPartController::class, 'update'])->name('mws.update');
-        Route::delete('/{id}', [MwsPartController::class, 'destroy'])->name('mws.destroy');
-        Route::post('/{id}/generate-steps', [MwsPartController::class, 'generateSteps'])
-            ->name('mws.generateSteps');
+        Route::put('/{id}', [MwsPartController::class, 'update'])->whereNumber('id')->name('mws.update');
+        Route::delete('/{id}', [MwsPartController::class, 'destroy'])->whereNumber('id')->name('mws.destroy');
+        Route::post('/{id}/generate-steps', [MwsPartController::class, 'generateSteps'])->name('mws.generateSteps');
 
-        // ── Duplicate ─────────────────────────────────────────
-        Route::post('/{mwsPartId}/duplicate', [MwsPartController::class, 'duplicate'])
-            ->name('mws.duplicate');
+        // Duplikasi & Cancel Sign
+        Route::post('/{mwsPartId}/duplicate', [MwsPartController::class, 'duplicate'])->name('mws.duplicate');
+        Route::post('/{mwsPart}/cancel-sign', [MwsPartController::class, 'cancelSign'])->name('mws.cancelSign');
 
-        // ── Step update (existing) ────────────────────────────
+        // Manajemen Workflow Inti
+        Route::post('/{mwsPartId}/steps', [MwsWorkflowController::class, 'storeStep'])->name('mws.steps.store');
+        Route::post('/{mwsPartId}/steps/{stepNo}/insert-after', [MwsWorkflowController::class, 'insertStepAfter'])->name('mws.steps.insertAfter');
+        Route::delete('/{mwsPartId}/steps/{stepNo}', [MwsWorkflowController::class, 'destroyStep'])->name('mws.steps.destroy');
+        Route::delete('/{mwsPartId}/steps/bulk-delete', [MwsWorkflowController::class, 'bulkDeleteSteps'])->name('mws.steps.bulkDelete');
+        Route::put('/{mwsPartId}/steps/{stepNo}/caution', [MwsWorkflowController::class, 'updateStepCaution'])->name('mws.steps.caution');
+
+        // Paksa Assign/Remove Mechanic & Unapprove/Unfinish
+        Route::post('/{mwsPartId}/steps/{stepNo}/assign-mechanic', [MwsWorkflowController::class, 'assignMechanic'])->name('mws.mechanics.assign');
+        Route::delete('/{mwsPartId}/steps/{stepNo}/remove-mechanic', [MwsWorkflowController::class, 'removeMechanic'])->name('mws.mechanics.remove');
+        Route::post('/{mwsPartId}/steps/{stepNo}/unapprove', [MwsWorkflowController::class, 'unapproveStep'])->name('mws.steps.unapprove');
+        Route::post('/{mwsPartId}/steps/{stepNo}/unfinish', [MwsWorkflowController::class, 'unfinishStep'])->name('mws.steps.unfinish');
+
+        // Consumables
+        Route::post('/{mwsPartId}/consumables', [MwsWorkflowController::class, 'storeConsumable'])->name('mws.consumables.store');
+        Route::put('/{mwsPartId}/consumables/{consumableId}', [MwsWorkflowController::class, 'updateConsumable'])->name('mws.consumables.update');
+        Route::delete('/{mwsPartId}/consumables/{consumableId}', [MwsWorkflowController::class, 'destroyConsumable'])->name('mws.consumables.destroy');
+    });
+
+    // ── [Mechanic Actions] Superadmin, Admin, Mechanic ────────────────────────
+    Route::middleware(['auth', 'role:superadmin,admin,mechanic'])->group(function () {
+        // Timer
+        Route::post('/{mwsPartId}/steps/{stepNo}/timer/start', [MwsWorkflowController::class, 'startTimer'])->name('mws.timer.start');
+        Route::post('/{mwsPartId}/steps/{stepNo}/timer/stop', [MwsWorkflowController::class, 'stopTimer'])->name('mws.timer.stop');
+
+        // Proses Pengerjaan (Sign On & Update Step)
+        Route::post('/{mwsPartId}/steps/{stepNo}/sign-on', [MwsWorkflowController::class, 'signOn'])->name('mws.mechanics.signOn');
         Route::post('/step/{stepNo}/update', [MwsPartController::class, 'updateStep']);
 
-        // ── Steps Management ──────────────────────────────────
-        Route::post('/{mwsPartId}/steps', [MwsWorkflowController::class, 'storeStep'])
-            ->name('mws.steps.store');
-        Route::post('/{mwsPartId}/steps/{stepNo}/insert-after', [MwsWorkflowController::class, 'insertStepAfter'])
-            ->name('mws.steps.insertAfter');
-        Route::delete('/{mwsPartId}/steps/{stepNo}', [MwsWorkflowController::class, 'destroyStep'])
-            ->name('mws.steps.destroy');
-        Route::delete('/{mwsPartId}/steps/bulk-delete', [MwsWorkflowController::class, 'bulkDeleteSteps'])
-            ->name('mws.steps.bulkDelete');
+        // Stripping (Details & Substeps)
+        Route::post('/{mwsPartId}/steps/{stepNo}/details', [MwsWorkflowController::class, 'storeDetail'])->name('mws.details.store');
+        Route::put('/{mwsPartId}/steps/{stepNo}/details/{detailIndex}', [MwsWorkflowController::class, 'updateDetail'])->name('mws.details.update');
+        Route::delete('/{mwsPartId}/steps/{stepNo}/details/{detailIndex}', [MwsWorkflowController::class, 'destroyDetail'])->name('mws.details.destroy');
+        Route::post('/{mwsPartId}/steps/{stepNo}/substeps', [MwsWorkflowController::class, 'storeSubStep'])->name('mws.substeps.store');
+        Route::put('/{mwsPartId}/steps/{stepNo}/substeps/{subStepId}', [MwsWorkflowController::class, 'updateSubStep'])->name('mws.substeps.update');
+        Route::delete('/{mwsPartId}/steps/{stepNo}/substeps/{subStepId}', [MwsWorkflowController::class, 'destroySubStep'])->name('mws.substeps.destroy');
 
-        // ── Details ───────────────────────────────────────────
-        Route::post('/{mwsPartId}/steps/{stepNo}/details', [MwsWorkflowController::class, 'storeDetail'])
-            ->name('mws.details.store');
-        Route::put('/{mwsPartId}/steps/{stepNo}/details/{detailIndex}', [MwsWorkflowController::class, 'updateDetail'])
-            ->name('mws.details.update');
-        Route::delete('/{mwsPartId}/steps/{stepNo}/details/{detailIndex}', [MwsWorkflowController::class, 'destroyDetail'])
-            ->name('mws.details.destroy');
-
-        // ── Caution & Note per Step ───────────────────────────
-        Route::put('/{mwsPartId}/steps/{stepNo}/caution', [MwsWorkflowController::class, 'updateStepCaution'])
-            ->name('mws.steps.caution');
-
-        // ── Sub-Steps ─────────────────────────────────────────
-        Route::post('/{mwsPartId}/steps/{stepNo}/substeps', [MwsWorkflowController::class, 'storeSubStep'])
-            ->name('mws.substeps.store');
-        Route::put('/{mwsPartId}/steps/{stepNo}/substeps/{subStepId}', [MwsWorkflowController::class, 'updateSubStep'])
-            ->name('mws.substeps.update');
-        Route::delete('/{mwsPartId}/steps/{stepNo}/substeps/{subStepId}', [MwsWorkflowController::class, 'destroySubStep'])
-            ->name('mws.substeps.destroy');
-
-        // ── Mechanics ─────────────────────────────────────────
-        Route::post('/{mwsPartId}/steps/{stepNo}/sign-on', [MwsWorkflowController::class, 'signOn'])
-            ->name('mws.mechanics.signOn');
-        Route::post('/{mwsPartId}/steps/{stepNo}/assign-mechanic', [MwsWorkflowController::class, 'assignMechanic'])
-            ->name('mws.mechanics.assign');
-        Route::delete('/{mwsPartId}/steps/{stepNo}/remove-mechanic', [MwsWorkflowController::class, 'removeMechanic'])
-            ->name('mws.mechanics.remove');
-
-        // ── Unapprove & UnfinishStep ─────────────────────────────────────────
-        Route::post('/{mwsPartId}/steps/{stepNo}/unapprove', [MwsWorkflowController::class, 'unapproveStep'])
-            ->name('mws.steps.unapprove');
-        Route::post('/{mwsPartId}/steps/{stepNo}/unfinish', [MwsWorkflowController::class, 'unfinishStep'])
-            ->name('mws.steps.unfinish');
-
-        // ── Consumables ───────────────────────────────────────
-        Route::post('/{mwsPartId}/consumables', [MwsWorkflowController::class, 'storeConsumable'])
-            ->name('mws.consumables.store');
-        Route::put('/{mwsPartId}/consumables/{consumableId}', [MwsWorkflowController::class, 'updateConsumable'])
-            ->name('mws.consumables.update');
-        Route::delete('/{mwsPartId}/consumables/{consumableId}', [MwsWorkflowController::class, 'destroyConsumable'])
-            ->name('mws.consumables.destroy');
-
-        // ── Attachments (placeholder) ─────────────────────────
-        Route::post('/{mwsPartId}/attachments', [MwsWorkflowController::class, 'storeAttachment'])
-            ->name('mws.attachments.store');
-        Route::delete('/{mwsPartId}/attachments/{publicId}', [MwsWorkflowController::class, 'destroyAttachment'])
-            ->name('mws.attachments.destroy');
-        Route::post('/{mwsPartId}/steps/{stepNo}/attachments', [MwsWorkflowController::class, 'storeStepAttachment'])
-            ->name('mws.stepAttachments.store');
-        Route::delete('/{mwsPartId}/steps/{stepNo}/attachments/{publicId}', [MwsWorkflowController::class, 'destroyStepAttachment'])
-            ->name('mws.stepAttachments.destroy');
-
-        // ── Cancel Sign ──────────────────────────────────────────────
-        Route::post('/{mwsPart}/cancel-sign', [MwsPartController::class, 'cancelSign'])
-            ->name('mws.cancelSign');
+        // Lampiran (Attachments)
+        Route::post('/{mwsPartId}/attachments', [MwsWorkflowController::class, 'storeAttachment'])->name('mws.attachments.store');
+        Route::delete('/{mwsPartId}/attachments/{publicId}', [MwsWorkflowController::class, 'destroyAttachment'])->name('mws.attachments.destroy');
+        Route::post('/{mwsPartId}/steps/{stepNo}/attachments', [MwsWorkflowController::class, 'storeStepAttachment'])->name('mws.stepAttachments.store');
+        Route::delete('/{mwsPartId}/steps/{stepNo}/attachments/{publicId}', [MwsWorkflowController::class, 'destroyStepAttachment'])->name('mws.stepAttachments.destroy');
     });
 
-    // ── [Manage] Only Superadmin, Admin, and Quality 2 can Access  ─────────────────────────────────────
+    // ── [Manage Quality 2] Superadmin, Admin, Quality 2 ───────────────────────
     Route::middleware(['auth', 'role:superadmin,admin,quality2'])->group(function () {
-
-        // ── Approval ─────────────────────────────────
-        Route::post('/{mwsPart}/sign', [MwsPartController::class, 'sign'])
-            ->name('mws.sign');
+        Route::post('/{mwsPart}/sign', [MwsPartController::class, 'sign'])->name('mws.sign');
+        Route::post('/{mwsPartId}/steps/{stepNo}/approve', [MwsWorkflowController::class, 'approveStep'])->name('mws.steps.approve');
+        Route::post('/{mwsPartId}/steps/{stepNo}/finish', [MwsWorkflowController::class, 'finishStep'])->name('mws.steps.finish');
     });
 
-    // ── [Manage] Only Mechanic can Access  ─────────────────────────────────────
-    Route::middleware(['auth', 'role:mechanic'])->group(function () {
-
-        // ── Timer ─────────────────────────────────────────────
-        Route::post('/{mwsPartId}/steps/{stepNo}/timer/start', [MwsWorkflowController::class, 'startTimer'])
-            ->name('mws.timer.start');
-        Route::post('/{mwsPartId}/steps/{stepNo}/timer/stop', [MwsWorkflowController::class, 'stopTimer'])
-            ->name('mws.timer.stop');
-    });
-
-    // ── [Manage] Only Quality 2 can Access  ─────────────────────────────────────
-    Route::middleware(['auth', 'role:quality2'])->group(function () {
-
-        // ── Approval & Finish ─────────────────────────────────
-        Route::post('/{mwsPartId}/steps/{stepNo}/approve', [MwsWorkflowController::class, 'approveStep'])
-            ->name('mws.steps.approve');
-
-        Route::post('/{mwsPartId}/steps/{stepNo}/finish', [MwsWorkflowController::class, 'finishStep'])
-            ->name('mws.steps.finish');
-    });
-
-    // ── [Manage] Only Quality 1 can Access  ─────────────────────────────────────
-    Route::middleware(['auth', 'role:quality1'])->group(function () {
-
-        // ── Approval Final WMS ─────────────────────────────────
-        Route::post('/{mwsPartId}/steps/{stepNo}/finish-final', [MwsWorkflowController::class, 'finishFinalInspection'])
-            ->name('mws.steps.finishFinal');
+    // ── [Manage Quality 1] Superadmin, Admin, Quality 1 ───────────────────────
+    Route::middleware(['auth', 'role:superadmin,admin,quality1'])->group(function () {
+        Route::post('/{mwsPartId}/steps/{stepNo}/finish-final', [MwsWorkflowController::class, 'finishFinalInspection'])->name('mws.steps.finishFinal');
     });
 });
 
