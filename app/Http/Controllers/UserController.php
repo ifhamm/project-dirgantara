@@ -5,21 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Http\Requests\UserRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::where('role', '!=', 'admin');
+        $query = User::where('role', '!=', 'superadmin');
 
         // Logic Search
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                ->orWhere('email', 'like', "%{$search}%")
-                ->orWhere('nik', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('nik', 'like', "%{$search}%");
             });
         }
 
@@ -36,20 +35,28 @@ class UserController extends Controller
             $query->orderBy('created_at', 'desc');
         }
 
-    $users = $query->paginate(10)->withQueryString();
+        $users = $query->paginate(10)->withQueryString();
 
-    return view('users.account', compact('users'));
-}
+        return view('users.account', compact('users'));
+    }
 
     public function store(UserRequest $request)
     {
-        User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'nik'      => $request->nik,
-            'role'     => $request->role,
-            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
-        ]);
+        $data = [
+            'name' => $request->name,
+            'nik'  => $request->nik,
+            'role' => $request->role,
+            'email' => $request->role === 'admin' ? $request->email : null,
+        ];
+
+        // Jika password diisi (untuk admin), atau default password pakai NIK untuk yang lain
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        } else {
+            $data['password'] = bcrypt($request->nik ?? 'password123');
+        }
+
+        User::create($data);
 
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil ditambahkan.');
     }
@@ -57,14 +64,15 @@ class UserController extends Controller
     public function update(UserRequest $request, User $user)
     {
         $data = [
-            'name'  => $request->name,
-            'email' => $request->email,
-            'nik'   => $request->nik,
-            'role'  => $request->role,
+            'name' => $request->name,
+            'nik'  => $request->nik,
+            'role' => $request->role,
+            'email' => $request->role === 'admin' ? $request->email : $user->email,
         ];
 
+        // Update password hanya jika diisi
         if ($request->filled('password')) {
-            $data['password'] = \Illuminate\Support\Facades\Hash::make($request->password);
+            $data['password'] = bcrypt($request->password);
         }
 
         $user->update($data);

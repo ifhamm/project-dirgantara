@@ -25,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(MwsPart::class, MwsPartPolicy::class);
 
+        Gate::define('is-superadmin', function (User $user) {
+            return $user->role === 'superadmin';
+        });
         Gate::define('is-management', function (User $user) {
             return in_array($user->role, ['superadmin', 'admin']);
         });

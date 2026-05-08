@@ -138,24 +138,38 @@
                                 </th>
                                 <th class="px-6 py-4 text-left">Email</th>
                                 <th class="px-6 py-4 text-center">Role</th>
+                                @can('is-superadmin')
                                 <th class="px-6 py-4 text-center">Aksi</th>
+                                @endcan
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @forelse($users as $user)
                                 <tr class="hover:bg-gray-50 transition border-b">
-                                    <td class="px-6 py-4 text-sm text-gray-900 text-left">{{ $user->nik ?? '-' }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-900 text-left">{{ $user->nik }}</td>
                                     <td class="px-6 py-4 text-sm text-gray-900 text-left">{{ $user->name }}</td>
-                                    <td class="px-6 py-4 text-sm text-gray-500 text-left">{{ $user->email }}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500 text-left">{{ $user->email ?? '-' }}</td>
                                     <td class="px-6 py-4 text-sm text-center">
                                         <span
                                             class="px-2 py-1 rounded-full text-xs font-semibold inline-block min-w-[100px] text-center
-                                            {{ $user->role == 'mechanic' ? 'bg-orange-100 text-orange-700' : '' }}
-                                            {{ $user->role == 'quality inspector' ? 'bg-blue-100 text-blue-700' : '' }}
-                                            {{ $user->role == 'quality cvdr' ? 'bg-teal-100 text-teal-700' : '' }}">
-                                            {{ ucfirst($user->role) }}
+                                            {{ match ($user->role) {
+                                                'admin' => 'bg-green-100 text-green-700',
+                                                'mechanic' => 'bg-orange-100 text-orange-700',
+                                                'quality2' => 'bg-blue-100 text-blue-700',
+                                                'quality1' => 'bg-teal-100 text-teal-700',
+                                                default => 'bg-gray-100 text-gray-700',
+                                            } }}">
+
+                                            {{ match ($user->role) {
+                                                'admin' => 'PPC',
+                                                'mechanic' => 'Mechanic',
+                                                'quality2' => 'Quality Inspector',
+                                                'quality1' => 'Quality CVDR',
+                                                default => ucfirst($user->role),
+                                            } }}
                                         </span>
                                     </td>
+                                    @can('is-superadmin')
                                     <td class="px-6 py-4 text-center space-x-2">
                                         {{-- Tombol Edit --}}
                                         <button type="button"
@@ -174,6 +188,7 @@
                                             @csrf @method('DELETE')
                                         </form>
                                     </td>
+                                    @endcan
                                 </tr>
                             @empty
                                 <tr>
@@ -207,7 +222,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">NIK</label>
                         <input type="text" id="nik" name="nik" value="{{ old('nik') }}"
-                            class="w-full rounded-lg border-gray-300 text-sm">
+                            class="w-full rounded-lg border-gray-300 text-sm" maxlength="16">
                         @error('nik')
                             <p class="blade-error text-red-500 text-[13px] mt-1">{{ $message }}</p>
                         @enderror
@@ -224,48 +239,43 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Email<span
-                                class="text-red-500">*</span></label>
-                        <input type="email" id="email" name="email" value="{{ old('email') }}" required
-                            class="w-full rounded-lg border-gray-300 text-sm @error('email') border-red-500 @enderror">
-                        @error('email')
-                            <p class="blade-error text-red-500 text-[13px] mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
                         <label class="block text-sm font-medium text-gray-700">Role<span
                                 class="text-red-500">*</span></label>
-                        <select id="role" name="role" required
+                        <select id="role" name="role" required required onchange="toggleAdminFields()"
                             class="w-full rounded-lg border-gray-300 text-sm @error('role') border-red-500 @enderror">
                             <option value="" id="placeholderRole" disabled selected>Pilih Role</option>
+                            <option value="admin" {{ old('role') == 'admin' ? 'selected' : 'PPC' }}>PPC</option>
                             <option value="mechanic" {{ old('role') == 'mechanic' ? 'selected' : '' }}>Mechanic</option>
-                            <option value="quality inspector" {{ old('role') == 'quality inspector' ? 'selected' : '' }}>
+                            <option value="quality2" {{ old('role') == 'quality2' ? 'selected' : 'Quality Inspector' }}>
                                 Quality Inspector</option>
-                            <option value="quality cvdr" {{ old('role') == 'quality cvdr' ? 'selected' : '' }}>Quality
-                                CVDR</option>
+                            <option value="quality1" {{ old('role') == 'quality1' ? 'selected' : 'Quality CVDR' }}>
+                                Quality CVDR</option>
                         </select>
                         @error('role')
                             <p class="blade-error text-red-500 text-[13px] mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div id="passwordFieldContainer">
-                        <label class="block text-sm font-medium text-gray-700">Password<span
-                                class="text-red-500">*</span></label>
-                        <input type="password" name="password" id="passwordInput"
-                            class="w-full rounded-lg border-gray-300 text-sm @error('password') border-red-500 @enderror">
-                        @error('password')
-                            <p class="blade-error text-red-500 text-[13px] mt-1">{{ $message }}</p>
-                        @enderror
-                        <p id="passwordHint" class="text-[10px] text-gray-400 mt-1 hidden">*Kosongkan jika tidak ingin
-                            perbarui password</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Konfirmasi Password<span
-                                class="text-red-500">*</span></label>
-                        <input type="password" name="password_confirmation" id="passwordConfirmationInput"
-                            class="w-full rounded-lg border-gray-300 text-sm">
+                    {{-- Field Khusus Admin (Hidden by Default) --}}
+                    <div id="adminFields" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Email<span
+                                    class="text-red-500">*</span></label>
+                            <input type="email" id="email" name="email" value="{{ old('email') }}"
+                                class="w-full rounded-lg border-gray-300 text-sm">
+                            @error('email')
+                                <p class="text-red-500 text-[13px] mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" id="password" name="password"
+                                class="w-full rounded-lg border-gray-300 text-sm"
+                                placeholder="Isi jika ingin set password">
+                            @error('password')
+                                <p class="text-red-500 text-[13px] mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="pt-4 flex justify-end gap-3">
@@ -275,6 +285,16 @@
                             class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium shadow-md">Simpan</button>
                     </div>
                 </form>
+                @if ($errors->any())
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                        <strong class="font-bold">Oops, ada yang salah!</strong>
+                        <ul class="mt-2 list-disc list-inside text-sm">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -324,27 +344,42 @@
         function editUser(id, nik, name, email, role) {
             const modal = document.getElementById('userModal');
             const form = document.getElementById('userForm');
+
             modal.classList.remove('hidden');
             document.getElementById('modalTitle').innerText = 'Edit Pengguna';
+
             form.action = "/users/" + id;
             document.getElementById('methodField').value = 'PUT';
-            document.getElementById('passwordHint').classList.remove('hidden');
 
-            clearErrorVisuals();
+            if (typeof clearErrorVisuals === "function") {
+                clearErrorVisuals();
+            }
 
             document.getElementById('nik').value = (nik && nik !== 'null') ? nik : '';
             document.getElementById('name').value = name;
-            document.getElementById('email').value = email;
+            document.getElementById('email').value = (email && email !== 'null') ? email : '';
             document.getElementById('role').value = role;
 
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('passwordConfirmationInput').value = '';
+            document.getElementById('password').value = '';
+
+            toggleAdminFields();
         }
 
         function clearErrorVisuals() {
             document.querySelectorAll('.error-msg').forEach(el => el.remove());
             document.querySelectorAll('.blade-error').forEach(el => el.remove());
             document.querySelectorAll('.border-red-500').forEach(el => el.classList.remove('border-red-500'));
+        }
+
+        function toggleAdminFields() {
+            const role = document.getElementById('role').value;
+            const adminFields = document.getElementById('adminFields');
+
+            if (role === 'admin') {
+                adminFields.classList.remove('hidden');
+            } else {
+                adminFields.classList.add('hidden');
+            }
         }
 
         function closeModal() {

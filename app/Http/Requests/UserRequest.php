@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
@@ -18,13 +18,36 @@ class UserRequest extends FormRequest
         $userId = is_object($user) ? $user->id : $user;
 
         return [
-            'name'     => ['required', 'string', 'max:255', 'unique:users,name,' . $userId],
-            'nik'      => ['nullable', 'string', 'max:50', 'unique:users,nik,' . $userId],
-            'role'     => ['required', 'string', 'in:mechanic,quality inspector,quality cvdr'],
-            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email,' . $userId],
-            'password' => $this->isMethod('post') 
-                ? ['required', 'confirmed', Password::defaults()] 
-                : ['nullable', 'confirmed', Password::defaults()],
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                \Illuminate\Validation\Rule::unique('users', 'name')->ignore($userId)
+            ],
+            'nik' => [
+                'nullable',
+                'string',
+                'max:50',
+                \Illuminate\Validation\Rule::unique('users', 'nik')->ignore($userId)
+            ],
+            'role' => [
+                'required',
+                'string',
+                'in:admin,mechanic,quality1,quality2'
+            ],
+
+            'email' => [
+                'exclude_unless:role,admin',
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($userId)
+            ],
+
+            'password' => [
+                'exclude_unless:role,admin',
+                'nullable',
+                'min:8'
+            ],
         ];
     }
 }
