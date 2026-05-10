@@ -156,23 +156,29 @@ class MwsPartService
 
     public function sign(MwsPart $mwsPart, string $type, string $signedBy): void
     {
-        $field = $type . 'By';
-        $dateField = $type . 'At';
+        $fieldMap = [
+            'prepared' => ['field' => 'prepared_by', 'date' => 'prepared_date'],
+            'approved' => ['field' => 'approved_by', 'date' => 'approved_at'],
+            'verified' => ['field' => 'verified_by', 'date' => 'verified_at'],
+        ];
 
         $mwsPart->update([
-            $field => $signedBy,
-            $dateField => now(),
+            $fieldMap[$type]['field'] => $signedBy,
+            $fieldMap[$type]['date'] => now(),
         ]);
     }
 
     public function cancelSign(MwsPart $mwsPart, string $type): void
     {
-        $field = $type . 'By';
-        $dateField = $type . 'At';
+        $fieldMap = [
+            'prepared' => ['field' => 'prepared_by', 'date' => 'prepared_date'],
+            'approved' => ['field' => 'approved_by', 'date' => 'approved_at'],
+            'verified' => ['field' => 'verified_by', 'date' => 'verified_at'],
+        ];
 
         $mwsPart->update([
-            $field => null,
-            $dateField => null,
+            $fieldMap[$type]['field'] => null,
+            $fieldMap[$type]['date'] => null,
         ]);
     }
 
@@ -181,7 +187,7 @@ class MwsPartService
         $mwsPart->update(array_filter([
             'start_date' => $data['start_date'] ?? null,
             'finish_date' => $data['finish_date'] ?? null,
-        ], static fn ($value) => $value !== null));
+        ], static fn($value) => $value !== null));
     }
 
     private function syncTemplateSteps(MwsPart $mwsPart): void

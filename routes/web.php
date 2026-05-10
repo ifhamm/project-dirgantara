@@ -114,18 +114,20 @@ Route::prefix('mws')->middleware(['auth'])->group(function () {
         Route::delete('/{mwsPartId}/attachments/{publicId}', [MwsWorkflowController::class, 'destroyAttachment'])->name('mws.attachments.destroy');
         Route::post('/{mwsPartId}/steps/{stepNo}/attachments', [MwsWorkflowController::class, 'storeStepAttachment'])->name('mws.stepAttachments.store');
         Route::delete('/{mwsPartId}/steps/{stepNo}/attachments/{publicId}', [MwsWorkflowController::class, 'destroyStepAttachment'])->name('mws.stepAttachments.destroy');
+
+        // Approve Tech
+        Route::post('/{mwsPartId}/steps/{stepNo}/approve', [MwsWorkflowController::class, 'approveStep'])->name('mws.steps.approve');
+    });
+
+    // ── [Quality 1] — approve INSP ────────────────────────────────
+    Route::middleware(['auth', 'role:superadmin,admin,quality1'])->group(function () {
+        Route::post('/{mwsPartId}/steps/{stepNo}/finish', [MwsWorkflowController::class, 'finishStep'])->name('mws.steps.finish');
+        Route::post('/{mwsPartId}/steps/{stepNo}/finish-final', [MwsWorkflowController::class, 'finishFinalInspection'])->name('mws.steps.finishFinal');
     });
 
     // ── [Manage Quality 2] Superadmin, Admin, Quality 2 ───────────────────────
     Route::middleware(['auth', 'role:superadmin,admin,quality2'])->group(function () {
         Route::post('/{mwsPart}/sign', [MwsPartController::class, 'sign'])->name('mws.sign');
-        Route::post('/{mwsPartId}/steps/{stepNo}/approve', [MwsWorkflowController::class, 'approveStep'])->name('mws.steps.approve');
-        Route::post('/{mwsPartId}/steps/{stepNo}/finish', [MwsWorkflowController::class, 'finishStep'])->name('mws.steps.finish');
-    });
-
-    // ── [Manage Quality 1] Superadmin, Admin, Quality 1 ───────────────────────
-    Route::middleware(['auth', 'role:superadmin,admin,quality1'])->group(function () {
-        Route::post('/{mwsPartId}/steps/{stepNo}/finish-final', [MwsWorkflowController::class, 'finishFinalInspection'])->name('mws.steps.finishFinal');
     });
 });
 
