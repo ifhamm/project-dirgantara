@@ -100,7 +100,7 @@ class MwsPartController extends Controller
         $allowed = [
             'prepared' => ['admin', 'superadmin'],
             'approved' => ['admin', 'superadmin'],
-            'verified' => ['quality2'],
+            'verified' => ['quality1'],
         ];
 
         if (!$user || !isset($allowed[$request->type]) || !in_array($user->role, $allowed[$request->type], true)) {

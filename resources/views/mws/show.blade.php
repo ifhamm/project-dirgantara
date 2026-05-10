@@ -948,7 +948,7 @@
 
                                         {{-- INSP --}}
                                         <td class="col-insp align-top">
-                                            @if (auth()->user()->hasRole('quality1') && $stepInProgress && $techApproved)
+                                            @if (auth()->user()->hasRole('quality2') && $stepInProgress && $techApproved)
                                                 @if ($isFinal)
                                                     {{-- Final Inspection --}}
                                                     <div class="flex flex-col space-y-2 p-1"
@@ -1290,7 +1290,7 @@
                                                 <p class="mb-0 text-muted small">Menunggu Verified Quality...</p>
                                             @endif
                                         </div>
-                                        @if (!$verifiedBy && (auth()->user()->role ?? '') === 'quality2')
+                                        @if (!$verifiedBy && (auth()->user()->role ?? '') === 'quality1')
                                             <button onclick="signDocument('{{ $mwsPart->id }}', 'verified')"
                                                 class="btn btn-sm btn-info ms-2">
                                                 <i class="fas fa-signature me-1"></i> Sign
