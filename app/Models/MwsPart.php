@@ -75,8 +75,8 @@ class MwsPart extends Model
         'zone',
         'testcase',
         'indock_task_id',
-        'verifiedBy',
-        'verifiedAt',
+        'verified_by',
+        'verified_at',
         'status_s_us'
     ];
 

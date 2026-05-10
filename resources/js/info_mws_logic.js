@@ -123,10 +123,25 @@ async function saveMwsInfo(e) {
 // ═══════════════════════════════════════════════════════════════
 
 function togglePlanEdit(stepNo, field, show) {
-    const view = document.getElementById(`plan-${field}-view-${stepNo}`);
-    const edit = document.getElementById(`plan-${field}-edit-${stepNo}`);
-    if (view) view.style.display = show ? "none" : "flex";
-    if (edit) edit.style.display = show ? "block" : "none";
+    const viewId = `plan-${field}-view-${stepNo}`;
+    const editId = `plan-${field}-edit-${stepNo}`;
+    const view   = document.getElementById(viewId);
+    const edit   = document.getElementById(editId);
+
+    if (!view || !edit) {
+        console.error(`❌ Element tidak ditemukan: ${viewId} atau ${editId}`);
+        return;
+    }
+
+    if (show) {
+        view.style.display = 'none';
+        edit.style.display = 'block';
+        edit.classList.remove('d-none');
+    } else {
+        view.style.display  = '';
+        view.classList.remove('d-none');
+        edit.style.display  = 'none';
+    }
 }
 
 async function savePlan(mwsPartId, stepNo, field) {
@@ -222,6 +237,7 @@ async function deleteStep(mwsPartId, stepNo) {
         const row = document.getElementById(`step-row-${stepNo}`);
         if (row) row.remove();
         showToast("Step dihapus.");
+        location.reload();
     } catch (err) {
         showToast(err.message || "Gagal menghapus step.", "error");
     }
