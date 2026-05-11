@@ -40,7 +40,7 @@ class ProjectController extends Controller
     {
         $project = $this->projectService->show($project);
 
-        return view('projects.show', compact('project'));
+        return view('project.show', compact('project'));
     }
 
     public function edit(Project $project): View

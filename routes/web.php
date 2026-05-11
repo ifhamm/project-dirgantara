@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MwsPartController;
 use App\Http\Controllers\MwsWorkflowController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskGroupController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Import\GanttImportController;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +50,35 @@ Route::prefix('projects')->middleware(['auth'])->group(function () {
     Route::get('/{project}', [ProjectController::class, 'show'])->name('projects.show');
 });
 
+// TASK GROUPS (Level 3) — nested di bawah dock_phases
+Route::prefix('dock-phases')->middleware(['auth'])->group(function () {
+ 
+    Route::get('/{dockPhase}/task-groups/create', [TaskGroupController::class, 'create'])
+        ->name('task-groups.create');
+    Route::post('/{dockPhase}/task-groups', [TaskGroupController::class, 'store'])
+        ->name('task-groups.store');
+    Route::get('/{dockPhase}/task-groups/{taskGroup}/edit', [TaskGroupController::class, 'edit'])
+        ->name('task-groups.edit');
+    Route::put('/{dockPhase}/task-groups/{taskGroup}', [TaskGroupController::class, 'update'])
+        ->name('task-groups.update');
+    Route::delete('/{dockPhase}/task-groups/{taskGroup}', [TaskGroupController::class, 'destroy'])
+        ->name('task-groups.destroy');
+});
+ 
+// TASKS (Level 4) — nested di bawah task_groups
+Route::prefix('task-groups')->middleware(['auth'])->group(function () {
+ 
+    Route::get('/{taskGroup}/tasks/create', [TaskController::class, 'create'])
+        ->name('tasks.create');
+    Route::post('/{taskGroup}/tasks', [TaskController::class, 'store'])
+        ->name('tasks.store');
+    Route::get('/{taskGroup}/tasks/{task}/edit', [TaskController::class, 'edit'])
+        ->name('tasks.edit');
+    Route::put('/{taskGroup}/tasks/{task}', [TaskController::class, 'update'])
+        ->name('tasks.update');
+    Route::delete('/{taskGroup}/tasks/{task}', [TaskController::class, 'destroy'])
+        ->name('tasks.destroy');
+});
 
 // ══════════════════════════════════════════════════════════════
 // MWS ROUTES

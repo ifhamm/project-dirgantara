@@ -7,15 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class Task extends Model
 {
     protected $fillable = [
-        'task_group_id', 'no', 'name',
-        'progress', 'allocation', 'start_date', 'finish_date', 'work_days',
+        'task_group_id',
+        'no',
+        'name',
+        'progress',
+        'allocation',
+        'start_date',
+        'finish_date',
+        'work_days',
     ];
 
     protected $casts = [
-        'start_date'  => 'date',
+        'start_date' => 'date',
         'finish_date' => 'date',
-        'progress'    => 'decimal:6',
-        'allocation'  => 'decimal:6',
+        'progress' => 'decimal:6',
+        'allocation' => 'decimal:6',
     ];
 
     public function taskGroup()
@@ -25,6 +31,6 @@ class Task extends Model
 
     public function mwsParts()
     {
-        return $this->hasMany(MwsPart::class);
+        return $this->hasMany(MwsPart::class, 'indock_task_id');
     }
 }

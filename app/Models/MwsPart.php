@@ -111,4 +111,9 @@ class MwsPart extends Model
     {
         return $this->hasMany(MwsConsumable::class, 'mws_part_id')->orderBy('order');
     }
+
+    public function indockTask()
+    {
+        return $this->belongsTo(Task::class, 'indock_task_id');
+    }
 }
