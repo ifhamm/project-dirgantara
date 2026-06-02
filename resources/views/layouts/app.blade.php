@@ -63,7 +63,11 @@
 
             <!-- Page Content -->
             <main class="py-4">
-                @yield('content')
+                @isset($slot)
+                    {{ $slot }}
+                @else
+                    @yield('content')
+                @endisset
             </main>
         </div>
     </div>

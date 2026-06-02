@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MwsPartController;
 use App\Http\Controllers\MwsWorkflowController;
 use App\Http\Controllers\ProjectController;
@@ -10,9 +11,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Import\GanttImportController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard.page');
 
 // ── Print (di luar prefix karena tidak butuh auth khusus) ─
 Route::get('/mws/{mwsPart}/print', [MwsPartController::class, 'print'])
