@@ -158,7 +158,7 @@ class MwsPartService
     {
         $fieldMap = [
             'prepared' => ['field' => 'prepared_by', 'date' => 'prepared_date'],
-            'approved' => ['field' => 'approved_by', 'date' => 'approved_at'],
+            'approved' => ['field' => 'approved_by', 'date' => 'approved_date'],
             'verified' => ['field' => 'verified_by', 'date' => 'verified_at'],
         ];
 
@@ -172,7 +172,7 @@ class MwsPartService
     {
         $fieldMap = [
             'prepared' => ['field' => 'prepared_by', 'date' => 'prepared_date'],
-            'approved' => ['field' => 'approved_by', 'date' => 'approved_at'],
+            'approved' => ['field' => 'approved_by', 'date' => 'approved_date'],
             'verified' => ['field' => 'verified_by', 'date' => 'verified_at'],
         ];
 

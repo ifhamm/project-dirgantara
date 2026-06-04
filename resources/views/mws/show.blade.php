@@ -430,6 +430,9 @@
                 <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <h5 class="mb-0">Maintenance Work Sheet</h5>
                     <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ route('mws.print', $mwsPart->id) }}" target="_blank" class="btn btn-sm btn-primary">
+                            <i class="fas fa-print me-1"></i>Print MWS
+                        </a>
                         @can('update', $mwsPart)
                             <button id="smart-delete-btn" onclick="handleSmartDelete('{{ $mwsPart->id }}')"
                                 class="btn btn-sm btn-danger d-none">
@@ -439,9 +442,6 @@
                                 title="Tambah Step Baru">
                                 <i class="fas fa-plus me-1"></i>Add Step
                             </button>
-                            <a href="{{ route('mws.print', $mwsPart->id) }}" target="_blank" class="btn btn-sm btn-primary">
-                                <i class="fas fa-print me-1"></i>Print MWS
-                            </a>
                         @endcan
                     </div>
                 </div>
@@ -1229,7 +1229,7 @@
                                 {{-- Approved By --}}
                                 @php
                                     $approvedBy = $mwsPart->approved_by;
-                                    $approvedAt = $mwsPart->approved_at;
+                                    $approvedAt = $mwsPart->approved_date;
                                 @endphp
 
                                 <div

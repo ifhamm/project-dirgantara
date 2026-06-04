@@ -33,6 +33,8 @@
             flex: 1;
             margin-left: 280px;
             background-color: #f5f7fa;
+            min-width: 0;
+            overflow-x: hidden;
         }
 
         @media (max-width: 768px) {
