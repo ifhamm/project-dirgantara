@@ -31,6 +31,6 @@ class Task extends Model
 
     public function mwsParts()
     {
-        return $this->hasMany(MwsPart::class, 'indock_task_id');
+        return $this->hasMany(MwsPart::class, 'task_id');
     }
 }

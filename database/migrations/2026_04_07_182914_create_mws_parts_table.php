@@ -79,7 +79,7 @@ return new class extends Migration
             $table->integer('selisihStrippingWorkDays')->nullable();
             $table->string('zone', 100)->nullable();
             $table->text('testcase')->nullable();
-            $table->foreignId('indock_task_id')->nullable()->constrained('indock_tasks')->onDelete('cascade');
+            $table->foreignId('task_id')->nullable()->constrained('indock_tasks')->onDelete('cascade');
             $table->timestamps();
             $table->string('verifiedBy')->nullable();
             $table->timestamp('verifiedAt')->nullable();

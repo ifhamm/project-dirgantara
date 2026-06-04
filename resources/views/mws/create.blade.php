@@ -14,7 +14,7 @@
         <form action="{{ route('mws.store') }}" method="POST" class="needs-validation" novalidate>
             @csrf
             @if (request('task_id'))
-                <input type="hidden" name="indock_task_id" value="{{ request('task_id') }}">
+                <input type="hidden" name="task_id" value="{{ request('task_id') }}">
             @endif
 
             {{-- ==================== DETAIL PEKERJAAN & KOMPONEN ==================== --}}
