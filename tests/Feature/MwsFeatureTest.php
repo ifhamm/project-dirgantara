@@ -2,9 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Models\DockPhase;
 use App\Models\MwsPart;
 use App\Models\MwsConsumable;
 use App\Models\MwsStep;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\TaskGroup;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,12 +18,43 @@ class MwsFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
+    private function createTaskFixture(string $name = 'MWS Task'): Task
+    {
+        $project = Project::create([
+            'customer' => 'PT Dirgantara Indonesia',
+            'contract_no' => 'CN-001',
+            'aircraft_reg' => 'PK-DIR',
+            'aircraft_type' => 'CN235-110',
+            'description' => 'Test project',
+        ]);
+
+        $dockPhase = DockPhase::create([
+            'project_id' => $project->id,
+            'type' => 'indock',
+            'no' => '1',
+            'name' => 'Indock Phase',
+        ]);
+
+        $taskGroup = TaskGroup::create([
+            'dock_phase_id' => $dockPhase->id,
+            'no' => '1',
+            'name' => 'Task Group',
+        ]);
+
+        return Task::create([
+            'task_group_id' => $taskGroup->id,
+            'no' => '1',
+            'name' => $name,
+        ]);
+    }
+
     public function test_admin_can_open_mws_create_page_and_store_a_new_mws_part(): void
     {
         $admin = User::factory()->create([
             'name' => 'MWS Admin',
             'role' => 'admin',
         ]);
+        $task = $this->createTaskFixture('Wing Inspection Task');
 
         $this->actingAs($admin)
             ->get(route('mws.create'))
@@ -36,6 +71,7 @@ class MwsFeatureTest extends TestCase
             'ref' => 'REF-001',
             'worksheet_no' => 'WS-001',
             'revision' => '1',
+            'task_id' => $task->id,
         ]);
 
         $mwsPart = MwsPart::query()->where('part_number', 'PN-001')->firstOrFail();
@@ -61,8 +97,9 @@ class MwsFeatureTest extends TestCase
             'name' => 'MWS Admin',
             'role' => 'admin',
         ]);
+        $task = $this->createTaskFixture('Wing Inspection Task');
 
-        $mwsPart = $this->actingAs($admin)->post(route('mws.store'), [
+        $this->actingAs($admin)->post(route('mws.store'), [
             'title' => 'Wing Inspection Sheet',
             'job_type' => 'Repair',
             'customer_name' => 'PT Dirgantara Indonesia',
@@ -73,6 +110,7 @@ class MwsFeatureTest extends TestCase
             'ref' => 'REF-UPDATE',
             'worksheet_no' => 'WS-UPDATE',
             'revision' => '1',
+            'task_id' => $task->id,
         ]);
 
         $mwsPart = MwsPart::query()->where('part_number', 'PN-UPDATE')->firstOrFail();
@@ -100,8 +138,9 @@ class MwsFeatureTest extends TestCase
             'name' => 'MWS Admin',
             'role' => 'admin',
         ]);
+        $task = $this->createTaskFixture('Wing Inspection Task');
 
-        $mwsPart = $this->actingAs($admin)->post(route('mws.store'), [
+        $this->actingAs($admin)->post(route('mws.store'), [
             'title' => 'Wing Inspection Sheet',
             'job_type' => 'Repair',
             'customer_name' => 'PT Dirgantara Indonesia',
@@ -112,6 +151,7 @@ class MwsFeatureTest extends TestCase
             'ref' => 'REF-SIGN',
             'worksheet_no' => 'WS-SIGN',
             'revision' => '1',
+            'task_id' => $task->id,
         ]);
 
         $mwsPart = MwsPart::query()->where('part_number', 'PN-SIGN')->firstOrFail();
@@ -140,6 +180,7 @@ class MwsFeatureTest extends TestCase
             'name' => 'MWS Admin',
             'role' => 'admin',
         ]);
+        $task = $this->createTaskFixture('Wing Inspection Task');
 
         $this->actingAs($admin)->post(route('mws.store'), [
             'title' => 'Wing Inspection Sheet',
@@ -152,6 +193,7 @@ class MwsFeatureTest extends TestCase
             'ref' => 'REF-DELETE',
             'worksheet_no' => 'WS-DELETE',
             'revision' => '1',
+            'task_id' => $task->id,
         ]);
 
         $mwsPart = MwsPart::query()->where('part_number', 'PN-DELETE')->firstOrFail();
@@ -187,6 +229,7 @@ class MwsFeatureTest extends TestCase
             'nik' => 'MECH-001',
             'role' => 'mechanic',
         ]);
+        $task = $this->createTaskFixture('Workflow Task');
 
         $this->actingAs($admin)->post(route('mws.store'), [
             'title' => 'Workflow Sheet',
@@ -199,6 +242,7 @@ class MwsFeatureTest extends TestCase
             'ref' => 'REF-WF',
             'worksheet_no' => 'WS-WF',
             'revision' => '1',
+            'task_id' => $task->id,
         ]);
 
         $mwsPart = MwsPart::query()->where('part_number', 'PN-WF')->firstOrFail();
@@ -301,6 +345,7 @@ class MwsFeatureTest extends TestCase
             'name' => 'MWS Admin',
             'role' => 'admin',
         ]);
+        $task = $this->createTaskFixture('Substep Task');
 
         $this->actingAs($admin)->post(route('mws.store'), [
             'title' => 'Substep Sheet',
@@ -313,6 +358,7 @@ class MwsFeatureTest extends TestCase
             'ref' => 'REF-SUB',
             'worksheet_no' => 'WS-SUB',
             'revision' => '1',
+            'task_id' => $task->id,
         ]);
 
         $mwsPart = MwsPart::query()->where('part_number', 'PN-SUB')->firstOrFail();
@@ -352,12 +398,89 @@ class MwsFeatureTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_caution_unapprove_and_unfinish_step(): void
+    {
+        $admin = User::factory()->create([
+            'name' => 'MWS Admin',
+            'role' => 'admin',
+        ]);
+        $task = $this->createTaskFixture('Caution Task');
+
+        $this->actingAs($admin)->post(route('mws.store'), [
+            'title' => 'Caution Sheet',
+            'job_type' => 'Repair',
+            'customer_name' => 'PT Dirgantara Indonesia',
+            'part_number' => 'PN-CAU',
+            'serial_number' => 'SN-CAU',
+            'shop_area' => 'FO',
+            'wbs_no' => 'WBS-CAU',
+            'ref' => 'REF-CAU',
+            'worksheet_no' => 'WS-CAU',
+            'revision' => '1',
+            'task_id' => $task->id,
+        ]);
+
+        $mwsPart = MwsPart::query()->where('part_number', 'PN-CAU')->firstOrFail();
+        $step = MwsStep::query()->where('mws_part_id', $mwsPart->id)->where('no', 1)->firstOrFail();
+
+        // Approve first so we can unapprove later
+        $this->actingAs($admin)
+            ->post(route('mws.steps.approve', [$mwsPart->id, 1]))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $step->refresh();
+        $this->assertSame('Approved', $step->tech);
+
+        // Add caution + note
+        $this->actingAs($admin)
+            ->put(route('mws.steps.caution', [$mwsPart->id, 1]), [
+                'caution' => 'High voltage',
+                'note' => 'Isolate power before work',
+            ])
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $step->refresh();
+        $this->assertSame('High voltage', $step->caution);
+        $this->assertSame('Isolate power before work', $step->note);
+
+        // Unapprove should clear tech
+        $this->actingAs($admin)
+            ->post(route('mws.steps.unapprove', [$mwsPart->id, 1]))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $step->refresh();
+        $this->assertNull($step->tech);
+
+        // Finish then unfinish
+        $this->actingAs($admin)
+            ->post(route('mws.steps.finish', [$mwsPart->id, 1]))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $step->refresh();
+        $this->assertSame('completed', $step->status);
+        $this->assertSame('Approved', $step->insp);
+
+        $this->actingAs($admin)
+            ->post(route('mws.steps.unfinish', [$mwsPart->id, 1]))
+            ->assertOk()
+            ->assertJson(['success' => true]);
+
+        $step->refresh();
+        $this->assertSame('in_progress', $step->status);
+        $this->assertNull($step->insp);
+    }
+
     public function test_admin_can_insert_mws_step_after_existing_step(): void
     {
         $admin = User::factory()->create([
             'name' => 'MWS Admin',
             'role' => 'admin',
         ]);
+        $task = $this->createTaskFixture('Insert Step Task');
 
         $this->actingAs($admin)->post(route('mws.store'), [
             'title' => 'Insert Step Sheet',
@@ -370,6 +493,7 @@ class MwsFeatureTest extends TestCase
             'ref' => 'REF-INS',
             'worksheet_no' => 'WS-INS',
             'revision' => '1',
+            'task_id' => $task->id,
         ]);
 
         $mwsPart = MwsPart::query()->where('part_number', 'PN-INS')->firstOrFail();
@@ -400,6 +524,7 @@ class MwsFeatureTest extends TestCase
             'name' => 'MWS Admin',
             'role' => 'admin',
         ]);
+        $task = $this->createTaskFixture('Consumable Task');
 
         $this->actingAs($admin)->post(route('mws.store'), [
             'title' => 'Consumable Sheet',
@@ -412,6 +537,7 @@ class MwsFeatureTest extends TestCase
             'ref' => 'REF-CONS',
             'worksheet_no' => 'WS-CONS',
             'revision' => '1',
+            'task_id' => $task->id,
         ]);
 
         $mwsPart = MwsPart::query()->where('part_number', 'PN-CONS')->firstOrFail();
