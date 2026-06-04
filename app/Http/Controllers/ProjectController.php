@@ -45,7 +45,9 @@ class ProjectController extends Controller
 
     public function edit(Project $project): View
     {
-        return view('projects.edit', compact('project'));
+        $project->load('dockPhases');
+
+        return view('project.edit', compact('project'));
     }
 
     public function update(UpdateProjectRequest $request, Project $project): RedirectResponse
