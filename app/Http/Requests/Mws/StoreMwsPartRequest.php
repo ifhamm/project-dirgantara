@@ -34,7 +34,7 @@ class StoreMwsPartRequest extends FormRequest
             'ac_type' => ['nullable', 'string', 'max:255'],
             'revision' => ['nullable', 'string', 'max:50'],
             'zone' => ['nullable', 'string', 'max:100'],
-            'indock_task_id' => ['nullable', 'integer'],
+            'task_id' => ['required', 'exists:tasks,id'],
         ];
     }
 }

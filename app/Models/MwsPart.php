@@ -72,7 +72,7 @@ class MwsPart extends Model
         'selisih_stripping_work_days',
         'zone',
         'testcase',
-        'indock_task_id',
+        'task_id',
         'verified_by',
         'verified_at',
         'status_s_us'
@@ -111,6 +111,6 @@ class MwsPart extends Model
 
     public function indockTask()
     {
-        return $this->belongsTo(Task::class, 'indock_task_id');
+        return $this->belongsTo(Task::class, 'task_id');
     }
 }
