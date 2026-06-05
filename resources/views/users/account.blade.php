@@ -44,9 +44,9 @@
                             class="block w-full py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm">
                             <option value="">Semua Role</option>
                             <option value="mechanic" {{ request('role') == 'mechanic' ? 'selected' : '' }}>Mechanic</option>
-                            <option value="quality inspector"
-                                {{ request('role') == 'quality inspector' ? 'selected' : '' }}>Quality Inspector</option>
-                            <option value="quality cvdr" {{ request('role') == 'quality cvdr' ? 'selected' : '' }}>Quality
+                            <option value="quality2"
+                                {{ request('role') == 'quality2' ? 'selected' : '' }}>Quality Inspector</option>
+                            <option value="quality1" {{ request('role') == 'quality1' ? 'selected' : '' }}>Quality
                                 CVDR</option>
                         </select>
                     </div>

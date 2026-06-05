@@ -11,6 +11,7 @@ use App\Http\Requests\Mws\UpdateMwsStepRequest;
 use App\Models\MwsPart;
 use App\Services\MwsPartService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class MwsPartController extends Controller
 {
@@ -24,7 +25,7 @@ class MwsPartController extends Controller
         return response()->json($this->parts->index());
     }
 
-    public function tracking()
+    public function tracking(Request $request)
     {
         $query = MwsPart::query();
         $user = Auth::user();
@@ -33,7 +34,28 @@ class MwsPartController extends Controller
                 $q->whereJsonContains('man', $user->nik);
             });
         }
-        $mwsParts = $query->orderBy('created_at', 'desc')->paginate(20);
+
+        // Logic Search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%");
+            });
+        }
+
+        // Logic Filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('sort_by') && in_array($request->sort_by, ['title','part_id'])) {
+            $sortOrder = $request->get('sort_order', 'asc');
+            $sortOrder = in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'asc';
+            $query->orderBy($request->sort_by, $sortOrder);
+        } else {
+            $query->orderBy('part_id', 'asc');
+        }
+        $mwsParts = $query->paginate(20);
         return view('mws.tracking', compact('mwsParts'));
     }
 
