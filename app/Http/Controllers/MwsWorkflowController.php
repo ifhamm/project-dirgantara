@@ -79,14 +79,22 @@ class MwsWorkflowController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $this->workflow->signOn($mwsPartId, $stepNo, $user);
+        try {
+            $this->workflow->signOn($mwsPartId, $stepNo, $user);
+        } catch (\RuntimeException $exception) {
+            return response()->json(['success' => false, 'message' => $exception->getMessage()], 400);
+        }
 
         return response()->json(['success' => true]);
     }
 
     public function assignMechanic(AssignMechanicRequest $request, string|int $mwsPartId, int $stepNo)
     {
-        $this->workflow->assignMechanic($mwsPartId, $stepNo, $request->validated('nik'));
+        try {
+            $this->workflow->assignMechanic($mwsPartId, $stepNo, $request->validated('nik'));
+        } catch (\RuntimeException $exception) {
+            return response()->json(['success' => false, 'message' => $exception->getMessage()], 400);
+        }
 
         return response()->json(['success' => true]);
     }
@@ -100,7 +108,11 @@ class MwsWorkflowController extends Controller
 
     public function startTimer(Request $request, string|int $mwsPartId, int $stepNo)
     {
-        $this->workflow->startTimer($mwsPartId, $stepNo);
+        try {
+            $this->workflow->startTimer($mwsPartId, $stepNo);
+        } catch (\RuntimeException $exception) {
+            return response()->json(['success' => false, 'message' => $exception->getMessage()], 400);
+        }
 
         return response()->json(['success' => true]);
     }
@@ -234,6 +246,18 @@ class MwsWorkflowController extends Controller
     public function destroySubStep(string|int $mwsPartId, int $stepNo, int $subStepId)
     {
         $this->workflow->destroySubStep($mwsPartId, $stepNo, $subStepId);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function reorderSteps(Request $request, string|int $mwsPartId)
+    {
+        $request->validate([
+            'step_ids' => ['required', 'array'],
+            'step_ids.*' => ['required', 'integer', 'exists:mws_steps,id'],
+        ]);
+
+        $this->workflow->reorderStepsByIds($mwsPartId, $request->input('step_ids'));
 
         return response()->json(['success' => true]);
     }

@@ -12,6 +12,50 @@
 
             <!-- Settings Dropdown -->
             <div class="flex items-center">
+                @if(auth()->check() && auth()->user()->role === 'mechanic')
+                    @php
+                        $notifications = \App\Models\MwsPart::whereHas('steps', function ($query) {
+                            $query->whereJsonContains('man', auth()->user()->nik);
+                        })
+                        ->orderBy('updated_at', 'desc')
+                        ->limit(5)
+                        ->get();
+                    @endphp
+                    <div class="me-4 relative" x-data="{ open: false }" @click.outside="open = false" @close.stop="open = false">
+                        <button @click="open = ! open" class="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none transition ease-in-out duration-150">
+                            <i class="fas fa-bell text-xl"></i>
+                            @if($notifications->count() > 0)
+                                <span class="absolute top-1 right-1 inline-block w-2.5 h-2.5 bg-red-600 rounded-full border-2 border-white"></span>
+                            @endif
+                        </button>
+                        <div x-show="open"
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+                             style="display: none;">
+                            <div class="px-4 py-2 border-b border-gray-100 font-semibold text-gray-800 text-sm">
+                                Notifikasi Penugasan MWS
+                            </div>
+                            @if($notifications->count() > 0)
+                                @foreach($notifications as $notif)
+                                    <a href="{{ route('mws.show', $notif->id) }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 border-b border-gray-50 last:border-0">
+                                        <div class="font-medium text-blue-600">{{ $notif->part_id }}</div>
+                                        <div class="text-xs text-gray-600 truncate text-start">{{ $notif->title }}</div>
+                                        <div class="text-[10px] text-gray-400 mt-1 text-start">Ditugaskan pada step kerja MWS ini</div>
+                                    </a>
+                                @endforeach
+                            @else
+                                <div class="px-4 py-4 text-center text-xs text-gray-500">
+                                    Tidak ada penugasan baru.
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button

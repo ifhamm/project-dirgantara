@@ -585,4 +585,162 @@ class MwsFeatureTest extends TestCase
             'id' => $consumable->id,
         ]);
     }
+
+    public function test_admin_can_reorder_mws_steps(): void
+    {
+        $admin = User::factory()->create([
+            'name' => 'MWS Admin',
+            'role' => 'admin',
+        ]);
+        $task = $this->createTaskFixture('Reorder Task');
+
+        $this->actingAs($admin)->post(route('mws.store'), [
+            'title' => 'Reorder Sheet',
+            'job_type' => 'Repair',
+            'customer_name' => 'PT Dirgantara Indonesia',
+            'part_number' => 'PN-REORDER',
+            'serial_number' => 'SN-REORDER',
+            'shop_area' => 'FO',
+            'wbs_no' => 'WBS-REORDER',
+            'ref' => 'REF-REORDER',
+            'worksheet_no' => 'WS-REORDER',
+            'revision' => '1',
+            'task_id' => $task->id,
+        ]);
+
+        $mwsPart = MwsPart::query()->where('part_number', 'PN-REORDER')->firstOrFail();
+        $steps = $mwsPart->steps()->orderBy('no')->get();
+        $this->assertCount(10, $steps);
+
+        $step1 = $steps[0];
+        $step2 = $steps[1];
+
+        // Swap their IDs
+        $newOrderIds = $steps->pluck('id')->toArray();
+        $temp = $newOrderIds[0];
+        $newOrderIds[0] = $newOrderIds[1];
+        $newOrderIds[1] = $temp;
+
+        $response = $this->actingAs($admin)->post(route('mws.steps.reorder', $mwsPart->id), [
+            'step_ids' => $newOrderIds,
+        ]);
+
+        $response->assertOk()->assertJson(['success' => true]);
+
+        $step1->refresh();
+        $step2->refresh();
+
+        $this->assertSame(2, $step1->no);
+        $this->assertSame(1, $step2->no);
+    }
+
+    public function test_mechanic_active_timer_validations(): void
+    {
+        $admin = User::factory()->create([
+            'name' => 'MWS Admin',
+            'role' => 'admin',
+        ]);
+        $mechanic = User::factory()->create([
+            'name' => 'MWS Mechanic 1',
+            'role' => 'mechanic',
+            'nik' => 'MECH001',
+        ]);
+        $mechanic2 = User::factory()->create([
+            'name' => 'MWS Mechanic 2',
+            'role' => 'mechanic',
+            'nik' => 'MECH002',
+        ]);
+
+        $task = $this->createTaskFixture('Validation Task');
+
+        // Create MWS 1
+        $this->actingAs($admin)->post(route('mws.store'), [
+            'title' => 'MWS 1',
+            'job_type' => 'Repair',
+            'customer_name' => 'PT Dirgantara Indonesia',
+            'part_number' => 'PN-01',
+            'serial_number' => 'SN-01',
+            'shop_area' => 'FO',
+            'wbs_no' => 'WBS-01',
+            'ref' => 'REF-01',
+            'worksheet_no' => 'WS-01',
+            'revision' => '1',
+            'task_id' => $task->id,
+        ]);
+        $mws1 = MwsPart::query()->where('part_number', 'PN-01')->firstOrFail();
+
+        // Create MWS 2
+        $this->actingAs($admin)->post(route('mws.store'), [
+            'title' => 'MWS 2',
+            'job_type' => 'Repair',
+            'customer_name' => 'PT Dirgantara Indonesia',
+            'part_number' => 'PN-02',
+            'serial_number' => 'SN-02',
+            'shop_area' => 'FO',
+            'wbs_no' => 'WBS-02',
+            'ref' => 'REF-02',
+            'worksheet_no' => 'WS-02',
+            'revision' => '1',
+            'task_id' => $task->id,
+        ]);
+        $mws2 = MwsPart::query()->where('part_number', 'PN-02')->firstOrFail();
+
+        // Assign mechanic 1 to step 1 of MWS 1
+        $this->actingAs($admin)->post(route('mws.mechanics.assign', [$mws1->id, 1]), [
+            'nik' => 'MECH001',
+        ])->assertOk();
+
+        // Assign mechanic 2 to step 1 of MWS 2
+        $this->actingAs($admin)->post(route('mws.mechanics.assign', [$mws2->id, 1]), [
+            'nik' => 'MECH002',
+        ])->assertOk();
+
+        // 1. Start timer on MWS 1 for MECH001 (using step 1)
+        $this->actingAs($mechanic)
+            ->post(route('mws.timer.start', [$mws1->id, 1]))
+            ->assertOk();
+
+        $step1 = $mws1->steps()->where('no', 1)->firstOrFail();
+        $this->assertNotNull($step1->timer_start_time);
+
+        // 2. Try to assign MECH001 to MWS 2 step 1 (should fail because MECH001 has active timer on MWS 1)
+        $response = $this->actingAs($admin)
+            ->post(route('mws.mechanics.assign', [$mws2->id, 1]), [
+                'nik' => 'MECH001',
+            ]);
+        $response->assertStatus(400);
+        $response->assertJson(['success' => false]);
+
+        // 3. Try to signOn MECH001 to MWS 2 step 1 (should fail)
+        $response2 = $this->actingAs($mechanic)
+            ->post(route('mws.mechanics.signOn', [$mws2->id, 1]));
+        $response2->assertStatus(400);
+        $response2->assertJson(['success' => false]);
+
+        // 4. Stop the timer on MWS 1
+        $this->actingAs($mechanic)
+            ->post(route('mws.timer.stop', [$mws1->id, 1]))
+            ->assertOk();
+
+        // Now assign MECH001 to MWS 2 step 1 should succeed
+        $this->actingAs($admin)
+            ->post(route('mws.mechanics.assign', [$mws2->id, 1]), [
+                'nik' => 'MECH001',
+            ])
+            ->assertOk();
+
+        $step2 = $mws2->steps()->where('no', 1)->firstOrFail();
+        $this->assertContains('MECH001', $step2->man);
+
+        // 5. Start timer on MWS 1 step 1 again
+        $this->actingAs($mechanic)
+            ->post(route('mws.timer.start', [$mws1->id, 1]))
+            ->assertOk();
+
+        // 6. Now try to start timer on MWS 2 step 1 (should fail because MECH001 is assigned to MWS 2 step 1 and has active timer on MWS 1)
+        $response3 = $this->actingAs($mechanic)
+            ->post(route('mws.timer.start', [$mws2->id, 1]));
+        $response3->assertStatus(400);
+        $response3->assertJson(['success' => false]);
+    }
 }

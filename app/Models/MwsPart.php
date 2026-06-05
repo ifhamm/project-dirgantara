@@ -113,4 +113,9 @@ class MwsPart extends Model
     {
         return $this->belongsTo(Task::class, 'task_id');
     }
+
+    public function getTotalDurationAttribute()
+    {
+        return $this->man_hours;
+    }
 }
