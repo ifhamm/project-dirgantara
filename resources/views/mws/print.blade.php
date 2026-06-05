@@ -492,7 +492,7 @@
                     <td class="col-plan">
                         <div>{{ $step->plan_man ?? '-' }} Man</div>
                         <div style="margin-top: 4px; font-weight: 500;">
-                            {{ $step->plan_hours ? (number_format((float)$step->plan_hours, 1) . ' Hrs') : '-' }}
+                            {{ $step->plan_hours ?? '-' }}
                         </div>
                     </td>
 

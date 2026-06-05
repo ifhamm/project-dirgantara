@@ -38,7 +38,7 @@ class MwsPartService
                 'job_type' => $data['job_type'],
                 'customer_name' => $data['customer_name'] ?? null,
                 'status' => $status,
-                'start_date' => now()->timezone('Asia/Jakarta'),
+                'start_date' => null,
                 'current_step' => 1,
                 'task_id' => $data['task_id'] ?? null,
                 // Additional fields from form — SNAKE_CASE

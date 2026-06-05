@@ -26,7 +26,14 @@ class MwsPartController extends Controller
 
     public function tracking()
     {
-        $mwsParts = MwsPart::orderBy('created_at', 'desc')->paginate(20);
+        $query = MwsPart::query();
+        $user = Auth::user();
+        if ($user && $user->role === 'mechanic') {
+            $query->whereHas('steps', function ($q) use ($user) {
+                $q->whereJsonContains('man', $user->nik);
+            });
+        }
+        $mwsParts = $query->orderBy('created_at', 'desc')->paginate(20);
         return view('mws.tracking', compact('mwsParts'));
     }
 

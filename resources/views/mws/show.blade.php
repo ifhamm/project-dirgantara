@@ -586,7 +586,7 @@
                                         HOURS</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="steps-tbody">
                                 @forelse($mwsPart->steps->sortBy('no') as $step)
                                     @php
                                         $rowClass = 'row-' . $step->status;
@@ -602,7 +602,7 @@
                                         $stepCompleted = $step->status === 'completed';
                                         $stepInProgress = $step->status === 'in_progress';
                                     @endphp
-                                    <tr id="step-row-{{ $step->no }}"
+                                    <tr id="step-row-{{ $step->no }}" data-id="{{ $step->id }}"
                                         class="step-row {{ $rowClass }} {{ $isCheck ? 'check-step-row' : '' }}">
 
                                         {{-- CHECKBOX --}}
@@ -615,6 +615,9 @@
 
                                         {{-- NO --}}
                                         <td class="col-no text-center align-top p-2">
+                                            @can('update', $mwsPart)
+                                                <i class="fas fa-grip-vertical text-muted drag-handle me-2" style="cursor: grab;" title="Tarik untuk mengurutkan"></i>
+                                            @endcan
                                             <span class="step-no-badge">Step {{ $step->no }}</span>
                                         </td>
 
@@ -792,8 +795,10 @@
                                                 </div>
                                                 <div id="plan-hours-edit-{{ $step->no }}" style="display:none;">
                                                     <input type="text" id="plan-hours-input-{{ $step->no }}"
-                                                        value="{{ $step->plan_hours }}"
-                                                        class="form-control form-control-sm mb-2" placeholder="Contoh: 8:00">
+                                                        value="{{ $step->plan_hours ?? '00:00' }}"
+                                                        class="form-control form-control-sm mb-2" placeholder="00:00"
+                                                        pattern="[0-9]{2,}:[0-9]{2}"
+                                                        title="Format harus HH:MM (contoh: 01:30)">
                                                     <button
                                                         onclick="savePlan('{{ $mwsPart->id }}', {{ $step->no }}, 'hours')"
                                                         class="btn btn-success btn-sm w-100 mb-2">
@@ -887,7 +892,7 @@
                                                     value="{{ $step->hours }}">
                                                 <span id="hours-display-{{ $step->no }}"
                                                     class="font-monospace text-larger fw-bold text-dark"
-                                                    @if ($timerRunning) data-start-time="{{ $step->timer_start_time }}"
+                                                    @if ($timerRunning) data-start-time="{{ $step->timer_start_time->toIso8601String() }}"
                                             data-initial-hours="{{ $step->hours }}" @endif>
                                                     {{ $step->hours }}
                                                 </span>
@@ -1315,5 +1320,6 @@
         </div>{{-- end min-h-screen --}}
     @endsection
     @push('scripts')
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
         <script src="{{ asset('js/info_mws_logic.js') }}"></script>
     @endpush

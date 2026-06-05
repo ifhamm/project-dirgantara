@@ -7,6 +7,7 @@ use App\Models\MwsPart;
 use App\Models\MwsStep;
 use App\Models\MwsSubstep;
 use App\Models\User;
+use App\Services\MwsServices;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
 
@@ -32,7 +33,7 @@ class MwsWorkflowService
     {
         $lastStep = MwsStep::where('mws_part_id', $mwsPartId)->max('no') ?? 0;
 
-        return MwsStep::create([
+        $step = MwsStep::create([
             'mws_part_id' => $mwsPartId,
             'no' => $lastStep + 1,
             'description' => $description,
@@ -40,6 +41,10 @@ class MwsWorkflowService
             'details' => [],
             'man' => [],
         ]);
+
+        $this->syncPartMetadata(MwsPart::findOrFail($mwsPartId));
+
+        return $step;
     }
 
     public function insertStepAfter(string|int $mwsPartId, int $stepNo, string $description): MwsStep
@@ -48,7 +53,7 @@ class MwsWorkflowService
             ->where('no', '>', $stepNo)
             ->increment('no');
 
-        return MwsStep::create([
+        $step = MwsStep::create([
             'mws_part_id' => $mwsPartId,
             'no' => $stepNo + 1,
             'description' => $description,
@@ -56,12 +61,17 @@ class MwsWorkflowService
             'details' => [],
             'man' => [],
         ]);
+
+        $this->syncPartMetadata(MwsPart::findOrFail($mwsPartId));
+
+        return $step;
     }
 
     public function destroyStep(string|int $mwsPartId, int $stepNo): void
     {
         $this->step($mwsPartId, $stepNo)->delete();
         $this->reorderSteps($mwsPartId);
+        $this->syncPartMetadata(MwsPart::findOrFail($mwsPartId));
     }
 
     public function bulkDeleteSteps(string|int $mwsPartId, array $stepNos): void
@@ -71,6 +81,7 @@ class MwsWorkflowService
             ->delete();
 
         $this->reorderSteps($mwsPartId);
+        $this->syncPartMetadata(MwsPart::findOrFail($mwsPartId));
     }
 
     public function storeDetail(string|int $mwsPartId, int $stepNo, string $detail): array
@@ -110,6 +121,10 @@ class MwsWorkflowService
 
     public function signOn(string|int $mwsPartId, int $stepNo, User $user): void
     {
+        if ($this->hasActiveTimer($user->nik, (int) $mwsPartId)) {
+            throw new RuntimeException('Mekanik sedang memiliki timer berjalan di MWS lain. Hentikan timer terlebih dahulu.');
+        }
+
         $step = $this->step($mwsPartId, $stepNo);
         $man = $step->man ?? [];
 
@@ -117,10 +132,16 @@ class MwsWorkflowService
             $man[] = $user->nik;
             $step->update(['man' => $man]);
         }
+
+        $this->syncPartMetadata($step->part);
     }
 
     public function assignMechanic(string|int $mwsPartId, int $stepNo, string $nik): void
     {
+        if ($this->hasActiveTimer($nik, (int) $mwsPartId)) {
+            throw new RuntimeException('Mekanik sedang memiliki timer berjalan di MWS lain. Hentikan timer terlebih dahulu.');
+        }
+
         $step = $this->step($mwsPartId, $stepNo);
         $mechanic = User::where('nik', $nik)->where('role', 'mechanic')->firstOrFail();
 
@@ -129,6 +150,8 @@ class MwsWorkflowService
             $man[] = $mechanic->nik;
             $step->update(['man' => $man]);
         }
+
+        $this->syncPartMetadata($step->part);
     }
 
     public function removeMechanic(string|int $mwsPartId, int $stepNo, string $nik): void
@@ -136,14 +159,33 @@ class MwsWorkflowService
         $step = $this->step($mwsPartId, $stepNo);
         $man = array_values(array_diff($step->man ?? [], [$nik]));
         $step->update(['man' => $man]);
+
+        $this->syncPartMetadata($step->part);
     }
 
     public function startTimer(string|int $mwsPartId, int $stepNo): void
     {
-        $this->step($mwsPartId, $stepNo)->update([
+        $step = $this->step($mwsPartId, $stepNo);
+
+        $man = $step->man ?? [];
+        foreach ($man as $nik) {
+            if ($this->hasActiveTimer($nik)) {
+                $mechanicName = User::where('nik', $nik)->value('name') ?? $nik;
+                throw new RuntimeException("Mekanik {$mechanicName} sedang memiliki timer berjalan di MWS lain atau step lain. Hentikan timer terlebih dahulu.");
+            }
+        }
+
+        $part = $step->part;
+        if (!$part->start_date) {
+            $part->update(['start_date' => now()]);
+        }
+
+        $step->update([
             'timer_start_time' => now(),
             'status' => 'in_progress',
         ]);
+
+        $this->syncPartMetadata($part);
     }
 
     public function stopTimer(string|int $mwsPartId, int $stepNo): string
@@ -169,42 +211,54 @@ class MwsWorkflowService
             'timer_start_time' => null,
         ]);
 
+        $this->syncPartMetadata($step->part);
+
         return $newHours;
     }
 
     public function approveStep(string|int $mwsPartId, int $stepNo): void
     {
-        $this->step($mwsPartId, $stepNo)->update(['tech' => 'Approved']);
+        $step = $this->step($mwsPartId, $stepNo);
+        $step->update(['tech' => 'Approved']);
+        $this->syncPartMetadata($step->part);
     }
 
     public function unapproveStep(string|int $mwsPartId, int $stepNo): void
     {
-        $this->step($mwsPartId, $stepNo)->update(['tech' => null]);
+        $step = $this->step($mwsPartId, $stepNo);
+        $step->update(['tech' => null]);
+        $this->syncPartMetadata($step->part);
     }
 
     public function finishStep(string|int $mwsPartId, int $stepNo): void
     {
-        $this->step($mwsPartId, $stepNo)->update([
+        $step = $this->step($mwsPartId, $stepNo);
+        $step->update([
             'status' => 'completed',
             'insp' => 'Approved',
         ]);
+        $this->syncPartMetadata($step->part);
     }
 
     public function unfinishStep(string|int $mwsPartId, int $stepNo): void
     {
-        $this->step($mwsPartId, $stepNo)->update([
+        $step = $this->step($mwsPartId, $stepNo);
+        $step->update([
             'status' => 'in_progress',
             'insp' => null,
         ]);
+        $this->syncPartMetadata($step->part);
     }
 
     public function finishFinalInspection(string|int $mwsPartId, int $stepNo, string $statusSus): void
     {
-        $this->step($mwsPartId, $stepNo)->update([
+        $step = $this->step($mwsPartId, $stepNo);
+        $step->update([
             'status' => 'completed',
             'insp' => 'Approved',
             'status_s_us' => $statusSus,
         ]);
+        $this->syncPartMetadata($step->part);
     }
 
     public function storeConsumable(string|int $mwsPartId, array $data): MwsConsumable
@@ -318,6 +372,40 @@ class MwsWorkflowService
 
             return $new;
         });
+    }
+
+    public function reorderStepsByIds(string|int $mwsPartId, array $stepIds): void
+    {
+        DB::transaction(function () use ($mwsPartId, $stepIds) {
+            foreach ($stepIds as $index => $id) {
+                MwsStep::where('mws_part_id', $mwsPartId)
+                    ->where('id', $id)
+                    ->update(['no' => $index + 1]);
+            }
+        });
+        
+        $part = MwsPart::findOrFail($mwsPartId);
+        $this->syncPartMetadata($part);
+    }
+
+    private function syncPartMetadata(MwsPart $part): void
+    {
+        MwsServices::updateStatus($part);
+        MwsServices::calculateMenPowers($part);
+        MwsServices::updateSchedule($part);
+        MwsServices::updateDuration($part);
+    }
+
+    public function hasActiveTimer(string $nik, ?int $exceptMwsPartId = null): bool
+    {
+        $query = MwsStep::whereNotNull('timer_start_time')
+            ->whereJsonContains('man', $nik);
+            
+        if ($exceptMwsPartId !== null) {
+            $query->where('mws_part_id', '!=', $exceptMwsPartId);
+        }
+        
+        return $query->exists();
     }
 
     private function generateSubStepLabel(int $stepId): string

@@ -108,6 +108,7 @@ Route::prefix('mws')->middleware(['auth'])->group(function () {
         Route::post('/{mwsPartId}/steps/{stepNo}/insert-after', [MwsWorkflowController::class, 'insertStepAfter'])->name('mws.steps.insertAfter');
         Route::delete('/{mwsPartId}/steps/{stepNo}', [MwsWorkflowController::class, 'destroyStep'])->name('mws.steps.destroy');
         Route::delete('/{mwsPartId}/steps/bulk-delete', [MwsWorkflowController::class, 'bulkDeleteSteps'])->name('mws.steps.bulkDelete');
+        Route::post('/{mwsPartId}/steps/reorder', [MwsWorkflowController::class, 'reorderSteps'])->name('mws.steps.reorder');
         Route::put('/{mwsPartId}/steps/{stepNo}/caution', [MwsWorkflowController::class, 'updateStepCaution'])->name('mws.steps.caution');
 
         // Paksa Assign/Remove Mechanic & Unapprove/Unfinish

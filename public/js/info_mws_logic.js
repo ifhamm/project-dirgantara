@@ -175,6 +175,14 @@ async function savePlan(mwsPartId, stepNo, field) {
     const input = document.getElementById(`plan-${field}-input-${stepNo}`);
     if (!input) return;
 
+    if (field === "hours") {
+        const val = input.value.trim();
+        if (!/^\d+:\d{2}$/.test(val)) {
+            showToast("Format durasi harus HH:MM (contoh: 01:30)", "error");
+            return;
+        }
+    }
+
     try {
         await apiFetch(`/mws/step/${stepNo}/update`, "POST", {
             field: field === "man" ? "plan_man" : "plan_hours",
@@ -1023,4 +1031,30 @@ document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll("[data-start-time]").forEach((el) => {
         startLiveTimer(el);
     });
+
+    // SortableJS Drag-and-Drop untuk MWS Steps
+    const stepsTbody = document.getElementById("steps-tbody");
+    if (stepsTbody && typeof Sortable !== "undefined") {
+        const hasDragHandles = stepsTbody.querySelector(".drag-handle");
+        if (hasDragHandles) {
+            new Sortable(stepsTbody, {
+                handle: ".drag-handle",
+                animation: 150,
+                onEnd: async function () {
+                    const rows = stepsTbody.querySelectorAll(".step-row");
+                    const stepIds = Array.from(rows).map(row => Number(row.dataset.id));
+                    
+                    try {
+                        await apiFetch(`/mws/${partId()}/steps/reorder`, "POST", {
+                            step_ids: stepIds
+                        });
+                        showToast("Urutan step berhasil diperbarui!");
+                        location.reload();
+                    } catch (err) {
+                        showToast(err.message || "Gagal mengurutkan step.", "error");
+                    }
+                }
+            });
+        }
+    }
 });

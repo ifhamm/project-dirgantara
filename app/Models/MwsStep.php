@@ -32,7 +32,6 @@ class MwsStep extends Model
     ];
 
     protected $casts = [
-        'plan_hours' => 'float',
         'completed_date' => 'datetime',
         'timer_start_time' => 'datetime',
         'details' => 'array',
@@ -40,7 +39,41 @@ class MwsStep extends Model
         'man' => 'array'
     ];
 
-public function getHoursAttribute($value)
+    public function getPlanHoursAttribute($value)
+    {
+        if (is_null($value) || $value === '') {
+            return null;
+        }
+
+        if (is_string($value) && preg_match('/^\d{2}:\d{2}$/', $value)) {
+            return $value;
+        }
+
+        if (is_numeric($value)) {
+            $totalMinutes = (int) ($value * 60);
+            $h = floor($totalMinutes / 60);
+            $m = $totalMinutes % 60;
+            return sprintf('%02d:%02d', $h, $m);
+        }
+
+        return null;
+    }
+
+    public function setPlanHoursAttribute($value)
+    {
+        if (is_string($value) && preg_match('/^\d{2}:\d{2}$/', $value)) {
+            $this->attributes['plan_hours'] = $value;
+        } elseif (is_numeric($value)) {
+            $totalMinutes = (int) ($value * 60);
+            $h = floor($totalMinutes / 60);
+            $m = $totalMinutes % 60;
+            $this->attributes['plan_hours'] = sprintf('%02d:%02d', $h, $m);
+        } else {
+            $this->attributes['plan_hours'] = null;
+        }
+    }
+
+    public function getHoursAttribute($value)
     {
         if (is_null($value) || $value === '') {
             return '00:00';

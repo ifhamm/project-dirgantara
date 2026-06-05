@@ -31,7 +31,10 @@ class MwsServices
 
         foreach ($mwsPart->steps as $step) {
             if ($step->hours) {
-                $totalMinutes += $step->hours * 60;
+                $parts = explode(':', $step->hours);
+                if (count($parts) === 2) {
+                    $totalMinutes += ((int) $parts[0] * 60) + (int) $parts[1];
+                }
             }
         }
 
@@ -136,14 +139,17 @@ class MwsServices
 
         foreach ($mwsPart->steps as $step) {
             if ($step->hours) {
-                $totalMinutes += $step->hours * 60;
+                $parts = explode(':', $step->hours);
+                if (count($parts) === 2) {
+                    $totalMinutes += ((int) $parts[0] * 60) + (int) $parts[1];
+                }
             }
         }
 
         $h = floor($totalMinutes / 60);
         $m = $totalMinutes % 60;
 
-        $mwsPart->total_duration = sprintf('%02d:%02d', $h, $m);
+        $mwsPart->man_hours = sprintf('%02d:%02d', $h, $m);
         $mwsPart->save();
     }
 }
