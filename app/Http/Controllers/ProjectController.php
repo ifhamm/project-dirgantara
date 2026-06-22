@@ -72,6 +72,32 @@ class ProjectController extends Controller
             ->with('success', "Project \"{$reg}\" berhasil dihapus.");
     }
 
+    /**
+     * Requirement #7: Duplicate Project
+     * Menampilkan form duplikasi dengan field yang dapat diubah
+     */
+    public function duplicate(Project $project): View
+    {
+        return view('project.duplicate', compact('project'));
+    }
+
+    /**
+     * Store duplicated project
+     */
+    public function storeDuplicate(Project $sourceProject): RedirectResponse
+    {
+        $newProject = $this->projectService->duplicateProject($sourceProject, [
+            'customer' => request('customer'),
+            'aircraft_type' => request('aircraft_type'),
+            'aircraft_series' => request('aircraft_series'),
+            'aircraft_reg' => request('aircraft_reg'),
+            'description' => request('description'),
+        ]);
+
+        return redirect()
+            ->route('projects.show', $newProject)
+            ->with('success', "Project berhasil di-duplicate. Silakan edit data sesuai kebutuhan.");
+    }
     public function exportExcel(Project $project, ProjectExportService $exportService): StreamedResponse
     {
         $spreadsheet = $exportService->export($project);

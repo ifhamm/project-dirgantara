@@ -9,7 +9,8 @@ class DockPhase extends Model
 {
     protected $fillable = [
         'project_id', 'type', 'no', 'name',
-        'progress', 'allocation', 'start_date', 'finish_date', 'work_days',
+        'progress', 'allocation', 'allocation_percentage',
+        'start_date', 'finish_date', 'work_days',
     ];
 
     protected $casts = [

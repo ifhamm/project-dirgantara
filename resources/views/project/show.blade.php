@@ -37,6 +37,9 @@
             <a href="{{ route('projects.edit', $project) }}" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-edit me-1"></i>Edit
             </a>
+            <a href="{{ route('projects.duplicate', $project) }}" class="btn btn-outline-info btn-sm">
+                <i class="fas fa-copy me-1"></i>Duplicate
+            </a>
             <form action="{{ route('projects.destroy', $project) }}" method="POST"
                   onsubmit="return confirm('Hapus project ini? Semua data terkait akan ikut terhapus.')">
                 @csrf
@@ -254,8 +257,8 @@
                                                     </a>
                                                 @endforeach
 
-                                                {{-- Tombol tambah MWS --}}
-                                                @if(in_array(auth()->user()->role, ['admin', 'superadmin']))
+                                                {{-- Tombol tambah MWS (hanya untuk In-Dock) --}}
+                                                @if(in_array(auth()->user()->role, ['admin', 'superadmin']) && $phase->type === 'indock')
                                                 <a href="{{ route('mws.create', ['task_id' => $task->id]) }}"
                                                    class="mws-chip mws-chip--add"
                                                    title="Tambah MWS">

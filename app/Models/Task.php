@@ -12,6 +12,7 @@ class Task extends Model
         'name',
         'progress',
         'allocation',
+        'allocation_percentage',
         'start_date',
         'finish_date',
         'work_days',

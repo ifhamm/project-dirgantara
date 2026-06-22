@@ -10,7 +10,8 @@ class TaskGroup extends Model
 {
     protected $fillable = [
         'dock_phase_id', 'no', 'name',
-        'progress', 'allocation', 'start_date', 'finish_date', 'work_days',
+        'progress', 'allocation', 'allocation_percentage',
+        'start_date', 'finish_date', 'work_days',
     ];
 
     protected $casts = [

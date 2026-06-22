@@ -151,6 +151,17 @@
                         </div>
 
                         <div class="col-12 col-md-6">
+                            <label for="aircraft_series" class="form-label fw-semibold text-dark mb-2">
+                                Aircraft Series
+                            </label>
+                            <input type="text" id="aircraft_series" name="aircraft_series"
+                                value="{{ old('aircraft_series') }}"
+                                placeholder="Contoh: Series 300"
+                                class="form-control form-control-lg @error('aircraft_series') is-invalid @enderror" />
+                            @error('aircraft_series')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="col-12 col-md-6">
                             <label for="aircraft_reg" class="form-label fw-semibold text-dark mb-2">
                                 Aircraft Reg / S/N <span class="text-danger">*</span>
                             </label>
@@ -228,23 +239,29 @@
                                     </span>
                                 </div>
                                 <div class="row g-3">
-                                    <div class="col-12 col-md-4">
+                                    <div class="col-12 col-md-3">
                                         <label class="form-label fw-semibold text-dark mb-1 small">Tanggal Mulai</label>
                                         <input type="date" name="phases[{{ $phase['key'] }}][start_date]"
                                             value="{{ old('phases.' . $phase['key'] . '.start_date') }}"
                                             class="form-control">
                                     </div>
-                                    <div class="col-12 col-md-4">
+                                    <div class="col-12 col-md-3">
                                         <label class="form-label fw-semibold text-dark mb-1 small">Tanggal Selesai</label>
                                         <input type="date" name="phases[{{ $phase['key'] }}][finish_date]"
                                             value="{{ old('phases.' . $phase['key'] . '.finish_date') }}"
                                             class="form-control">
                                     </div>
-                                    <div class="col-12 col-md-4">
+                                    <div class="col-12 col-md-3">
                                         <label class="form-label fw-semibold text-dark mb-1 small">Work Days</label>
                                         <input type="number" name="phases[{{ $phase['key'] }}][work_days]"
                                             value="{{ old('phases.' . $phase['key'] . '.work_days') }}"
                                             placeholder="0" min="0" class="form-control">
+                                    </div>
+                                    <div class="col-12 col-md-3">
+                                        <label class="form-label fw-semibold text-dark mb-1 small">Alokasi %</label>
+                                        <input type="number" step="0.01" name="phases[{{ $phase['key'] }}][allocation_percentage]"
+                                            value="{{ old('phases.' . $phase['key'] . '.allocation_percentage') }}"
+                                            placeholder="0" min="0" max="100" class="form-control">
                                     </div>
                                 </div>
                             </div>
