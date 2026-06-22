@@ -8,7 +8,7 @@ class Project extends Model
 {
     protected $fillable = [
         'customer', 'contract_no', 'aircraft_reg',
-        'aircraft_type', 'description', 'progress',
+        'aircraft_type', 'aircraft_series', 'description', 'progress',
         'start_date', 'finish_date', 'work_days',
     ];
 

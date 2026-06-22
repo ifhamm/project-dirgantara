@@ -44,6 +44,10 @@ Route::prefix('projects')->middleware(['auth'])->group(function () {
         Route::get('/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
         Route::put('/{project}', [ProjectController::class, 'update'])->name('projects.update');
         Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+
+        // ── Duplicate Project ──────────────────────
+        Route::get('/{project}/duplicate', [ProjectController::class, 'duplicate'])->name('projects.duplicate');
+        Route::post('/{project}/duplicate', [ProjectController::class, 'storeDuplicate'])->name('projects.store-duplicate');
     });
 
     // ── Route Wildcard (Dinamis) ──────────────────────
