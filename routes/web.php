@@ -52,6 +52,7 @@ Route::prefix('projects')->middleware(['auth'])->group(function () {
 
     // ── Route Wildcard (Dinamis) ──────────────────────
     Route::get('/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    Route::get('/{project}/export-excel', [ProjectController::class, 'exportExcel'])->name('projects.export-excel');
 });
 
 // TASK GROUPS (Level 3) — nested di bawah dock_phases
