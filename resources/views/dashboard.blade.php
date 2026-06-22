@@ -122,15 +122,21 @@
                                 {{ $activeProject->finish_date?->format('d M Y') }}
                             </div>
                         </div>
-                        <div class="ml-auto text-right">
-                            <div class="text-xs font-semibold uppercase tracking-widest mb-0.5" style="color:#7eb3e8">Overall Progress</div>
-                            @php
-                                $pct = $activeProject->progress * 100;
-                                $pctColor = $pct >= 80 ? '#4ade80' : ($pct >= 40 ? '#fbbf24' : '#f87171');
-                            @endphp
-                            <div class="text-2xl font-black" style="color:{{ $pctColor }}">
-                                {{ number_format($pct, 1) }}%
+                        <div class="ml-auto flex items-center gap-4">
+                            <div class="text-right">
+                                <div class="text-xs font-semibold uppercase tracking-widest mb-0.5" style="color:#7eb3e8">Overall Progress</div>
+                                @php
+                                    $pct = $activeProject->progress * 100;
+                                    $pctColor = $pct >= 80 ? '#4ade80' : ($pct >= 40 ? '#fbbf24' : '#f87171');
+                                @endphp
+                                <div class="text-2xl font-black" style="color:{{ $pctColor }}">
+                                    {{ number_format($pct, 1) }}%
+                                </div>
                             </div>
+                            <a href="{{ route('projects.export-excel', $activeProject->id) }}"
+                               class="rounded bg-emerald-600 hover:bg-emerald-700 transition px-4 py-2 text-xs font-bold text-white shadow-sm flex items-center gap-1.5 self-center">
+                                <i class="fas fa-file-excel"></i> Export Excel
+                            </a>
                         </div>
                     </div>
 

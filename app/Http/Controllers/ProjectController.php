@@ -6,8 +6,10 @@ use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Project;
 use App\Services\ProjectService;
+use App\Services\Export\ProjectExportService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ProjectController extends Controller
 {
@@ -68,5 +70,24 @@ class ProjectController extends Controller
         return redirect()
             ->route('projects.index')
             ->with('success', "Project \"{$reg}\" berhasil dihapus.");
+    }
+
+    public function exportExcel(Project $project, ProjectExportService $exportService): StreamedResponse
+    {
+        $spreadsheet = $exportService->export($project);
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $filename = 'Project_Export_' . str_replace(' ', '_', $project->customer) . '_' . date('Ymd_His') . '.xlsx';
+
+        return response()->stream(
+            function () use ($writer) {
+                $writer->save('php://output');
+            },
+            200,
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+                'Cache-Control' => 'max-age=0',
+            ]
+        );
     }
 }
